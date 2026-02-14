@@ -1,0 +1,43 @@
+{{define "content"}}
+<h1>Mis Presupuestos</h1>
+
+{{if .Data.Quotes}}
+<table role="grid">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Servicio</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data.Quotes}}
+        <tr>
+            <td>{{formatDate .CreatedAt}}</td>
+            <td>{{if .Booking}}{{.Booking.Service.Name}}{{end}}</td>
+            <td>{{formatMoney .Total}}</td>
+            <td>
+                {{if eq .Status "pending"}}
+                <span class="badge">⏳ Pendiente</span>
+                {{else if eq .Status "approved"}}
+                <span class="badge badge-success">✅ Aprobado</span>
+                {{else}}
+                <span class="badge badge-error">❌ Rechazado</span>
+                {{end}}
+            </td>
+            <td>
+                <a href="/quotes/{{.ID}}">Ver Detalle</a>
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{else}}
+<article>
+    <p>No tienes presupuestos pendientes.</p>
+    <a href="/bookings/new" role="button">Solicitar Servicio</a>
+</article>
+{{end}}
+{{end}}

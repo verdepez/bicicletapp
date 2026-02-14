@@ -1,0 +1,74 @@
+{{define "content"}}
+<h1>📊 Reportes</h1>
+
+<div class="grid">
+    <article>
+        <header>
+            <h3>📅 Reservas del Mes</h3>
+        </header>
+        <p style="font-size: 2rem; font-weight: bold; text-align: center; color: var(--primary);">
+            {{if .Data.MonthlyBookings}}{{.Data.MonthlyBookings}}{{else}}0{{end}}
+        </p>
+        <p style="text-align: center;">Total Reservas</p>
+        <footer>
+            <a href="/admin/reports/bookings">Ver Detalle →</a>
+        </footer>
+    </article>
+
+    <article>
+        <header>
+            <h3>💰 Ingresos</h3>
+        </header>
+        <p style="font-size: 2rem; font-weight: bold; text-align: center; color: var(--primary);">
+            {{if .Data.TotalRevenue}}{{formatMoney .Data.TotalRevenue}}{{else}}$0.00{{end}}
+        </p>
+        <p style="text-align: center;">Presupuestos Aprobados</p>
+        <footer>
+            <a href="/admin/reports/revenue">Ver Detalle →</a>
+        </footer>
+    </article>
+
+    <article>
+        <header>
+            <h3>⭐ Satisfacción</h3>
+        </header>
+        <p style="font-size: 2rem; font-weight: bold; text-align: center; color: var(--primary);">
+            {{if .Data.AvgRating}}{{printf "%.1f" .Data.AvgRating}}/5{{else}}-{{end}}
+        </p>
+        <p style="text-align: center;">Calificación Promedio</p>
+        <footer>
+            <a href="/admin/reports/surveys">Ver Encuestas →</a>
+        </footer>
+    </article>
+</div>
+
+{{if .Data.TicketCounts}}
+<article>
+    <header>
+        <h3>🔧 Estado de Tickets</h3>
+    </header>
+    <table role="grid">
+        <thead>
+            <tr>
+                <th>Estado</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range $status, $count := .Data.TicketCounts}}
+            <tr>
+                <td>{{ticketStatusLabel $status}}</td>
+                <td>{{$count}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</article>
+{{end}}
+
+<div class="grid">
+    <a href="/admin/reports/bookings" role="button" class="outline">📅 Reporte de Reservas</a>
+    <a href="/admin/reports/revenue" role="button" class="outline">💰 Reporte de Ingresos</a>
+    <a href="/admin/reports/surveys" role="button" class="outline">⭐ Reporte de Encuestas</a>
+</div>
+{{end}}

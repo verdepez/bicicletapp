@@ -1,0 +1,25 @@
+{{define "content"}}
+<article class="auth-form">
+    <header>
+        <h2>Iniciar Sesión</h2>
+    </header>
+
+    <form method="POST" action="/login">
+        <label for="email">
+            Correo Electrónico
+            <input type="email" id="email" name="email" placeholder="tu@email.com" required autofocus>
+        </label>
+
+        <label for="password">
+            Contraseña
+            <input type="password" id="password" name="password" placeholder="••••••••" required>
+        </label>
+
+        <button type="submit">Ingresar</button>
+    </form>
+
+    <footer>
+        <p>¿No tienes cuenta? <a href="/register">Regístrate aquí</a></p>
+    </footer>
+</article>
+{{end}}

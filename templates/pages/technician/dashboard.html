@@ -1,0 +1,94 @@
+{{define "content"}}
+<h1>🔧 Panel de Taller</h1>
+
+<div style="margin-bottom: 2rem; text-align: center;">
+    <a href="/tickets/new" role="button" class="contrast outline"
+        style="width: 100%; max-width: 400px; font-size: 1.2rem;">⚡ Nuevo Ticket Rápido (Walk-in)</a>
+</div>
+
+<div class="grid">
+    <article class="stat-card">
+        <h3>📥 Recibidos</h3>
+        <span class="stat-number">{{index .Data.StatusCounts "received"}}</span>
+    </article>
+    <article class="stat-card">
+        <h3>🔧 En Progreso</h3>
+        <span class="stat-number">{{index .Data.StatusCounts "in_progress"}}</span>
+    </article>
+    <article class="stat-card">
+        <h3>📦 Esperando</h3>
+        <span class="stat-number">{{index .Data.StatusCounts "waiting_parts"}}</span>
+    </article>
+    <article class="stat-card">
+        <h3>✅ Listos</h3>
+        <span class="stat-number">{{index .Data.StatusCounts "ready"}}</span>
+    </article>
+</div>
+
+<div class="grid">
+    <article>
+        <header>
+            <h3>📋 Reservas Pendientes</h3>
+        </header>
+        {{if .Data.PendingBookings}}
+        <table role="grid">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Servicio</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Data.PendingBookings}}
+                <tr>
+                    <td>{{formatDate .ScheduledAt}}</td>
+                    <td>{{if .Customer}}{{.Customer.Name}}{{else}}-{{end}}</td>
+                    <td>{{if .Service}}{{.Service.Name}}{{else}}-{{end}}</td>
+                    <td>
+                        <form method="POST" action="/bookings/{{.ID}}/ticket" style="display:inline">
+                            <button type="submit" class="small">Crear Ticket</button>
+                        </form>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <p>No hay reservas pendientes.</p>
+        {{end}}
+    </article>
+
+    <article>
+        <header>
+            <h3>🔧 Tickets Recientes</h3>
+        </header>
+        {{if .Data.RecentTickets}}
+        <table role="grid">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Estado</th>
+                    <th>Actualizado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Data.RecentTickets}}
+                <tr>
+                    <td><a href="/tickets/{{.ID}}">{{.TrackingCode}}</a></td>
+                    <td><span class="badge badge-{{.Status}}">{{ticketStatusLabel .Status}}</span></td>
+                    <td>{{formatDate .UpdatedAt}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <p>No hay tickets recientes.</p>
+        {{end}}
+        <footer>
+            <a href="/tickets">Ver todos los tickets →</a>
+        </footer>
+    </article>
+</div>
+{{end}}

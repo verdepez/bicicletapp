@@ -1,0 +1,193 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{.Config.Business.Tagline}}">
+
+    <title>{{.Title}} - {{.Config.Business.Name}}</title>
+
+    <!-- Pico CSS -->
+    <link rel="stylesheet" href="/static/css/pico.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap">
+    <link rel="stylesheet" href="/static/css/custom.css?v=2.1">
+
+    <!-- Dynamic brand colors -->
+    <style>
+        :root {
+                {
+                    {
+                    if .Config.Business.PrimaryColor
+                }
+            }
+
+            --pico-primary: {
+                    {
+                    .Config.Business.PrimaryColor
+                }
+            }
+
+            ;
+
+            --brand-primary: {
+                    {
+                    .Config.Business.PrimaryColor
+                }
+            }
+
+            ;
+
+                {
+                    {
+                    end
+                }
+            }
+
+                {
+                    {
+                    if .Config.Business.SecondaryColor
+                }
+            }
+
+            --pico-primary-hover: {
+                    {
+                    .Config.Business.SecondaryColor
+                }
+            }
+
+            ;
+
+            --brand-secondary: {
+                    {
+                    .Config.Business.SecondaryColor
+                }
+            }
+
+            ;
+
+                {
+                    {
+                    end
+                }
+            }
+
+                {
+                    {
+                    if .Config.Business.AccentColor
+                }
+            }
+
+            --brand-accent: {
+                    {
+                    .Config.Business.AccentColor
+                }
+            }
+
+            ;
+
+                {
+                    {
+                    end
+                }
+            }
+        }
+    </style>
+    <script>
+        /* Theme Toggler Logic */
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+    </script>
+</head>
+
+<body>
+    <header class="container-fluid">
+        <nav>
+            <ul>
+                <li>
+                    <a href="/" class="brand">
+                        <img src="{{.Config.Business.Logo}}" alt="{{.Config.Business.Name}}" height="40"
+                            onerror="this.style.display='none'">
+                        <strong>{{.Config.Business.Name}}</strong>
+                    </a>
+                </li>
+            </ul>
+            <ul>
+                <!-- Theme Toggler -->
+                <li>
+                    <a href="#" role="button" class="outline contrast" onclick="toggleTheme(); return false;"
+                        title="Cambiar Tema" style="border: none; background: transparent; padding: 0.5rem;">
+                        <span id="theme-icon-moon" style="display: var(--icon-moon-display);">🌙</span>
+                        <span id="theme-icon-sun" style="display: var(--icon-sun-display);">☀️</span>
+                    </a>
+                </li>
+
+                <li><a href="/services">Servicios</a></li>
+                <li><a href="/tracking">Tracking</a></li>
+                {{if .User}}
+                {{if eq .User.Role "admin"}}
+                <li><a href="/admin">Admin</a></li>
+                {{else if eq .User.Role "technician"}}
+                <li><a href="/workshop">Taller</a></li>
+                {{else}}
+                <li><a href="/dashboard">Mi Panel</a></li>
+                {{end}}
+                <li><a href="/logout" role="button" class="outline">Salir</a></li>
+                {{else}}
+                <li><a href="/login" role="button" class="outline">Ingresar</a></li>
+                <li><a href="/register" role="button">Registrarse</a></li>
+                {{end}}
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        {{if .Flash}}
+        <article class="flash flash-{{.Flash.Type}}">
+            {{.Flash.Message}}
+        </article>
+        {{end}}
+
+        {{template "content" .}}
+    </main>
+
+    <footer class="container">
+        <hr>
+        <div class="footer-content">
+            <p>&copy; {{.Year}} {{.Config.Business.Name}}. {{.Config.Business.Tagline}}</p>
+            <p>
+                <small>
+                    📧 {{.Config.Business.ContactEmail}} |
+                    📞 {{.Config.Business.ContactPhone}}
+                </small>
+            </p>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+    <style>
+        /* CSS Variables for Icon Display based on attribute */
+        [data-theme="dark"] {
+            --icon-moon-display: none;
+            --icon-sun-display: inline;
+        }
+
+        [data-theme="light"] {
+            --icon-moon-display: inline;
+            --icon-sun-display: none;
+        }
+    </style>
+</body>
+
+</html>
+{{end}}

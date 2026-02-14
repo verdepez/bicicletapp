@@ -1,0 +1,47 @@
+{{define "content"}}
+<h1>{{if and .Data.User .Data.User.ID}}Editar Usuario{{else}}Nuevo Usuario{{end}}</h1>
+
+<form method="POST"
+    action="{{if and .Data.User .Data.User.ID}}/admin/users/{{.Data.User.ID}}{{else}}/admin/users{{end}}">
+    <label for="name">
+        Nombre
+        <input type="text" id="name" name="name" value="{{if .Data.User}}{{.Data.User.Name}}{{end}}"
+            placeholder="Nombre completo" required>
+    </label>
+
+    <label for="email">
+        Email
+        <input type="email" id="email" name="email" value="{{if .Data.User}}{{.Data.User.Email}}{{end}}"
+            placeholder="correo@ejemplo.com" required>
+    </label>
+
+    {{if not (and .Data.User .Data.User.ID)}}
+    <label for="password">
+        Contraseña
+        <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8">
+    </label>
+    {{end}}
+
+    <label for="phone">
+        Teléfono (opcional)
+        <input type="tel" id="phone" name="phone" value="{{if .Data.User}}{{.Data.User.Phone}}{{end}}"
+            placeholder="+56 9 1234 5678">
+    </label>
+
+    <label for="role">
+        Rol
+        <select id="role" name="role" required>
+            <option value="customer" {{if and .Data.User (eq .Data.User.Role "customer" )}}selected{{end}}>👤 Cliente
+            </option>
+            <option value="technician" {{if and .Data.User (eq .Data.User.Role "technician" )}}selected{{end}}>🔧
+                Técnico</option>
+            <option value="admin" {{if and .Data.User (eq .Data.User.Role "admin" )}}selected{{end}}>👑 Admin</option>
+        </select>
+    </label>
+
+    <div class="grid">
+        <a href="/admin/users" role="button" class="secondary outline">Cancelar</a>
+        <button type="submit">{{if and .Data.User .Data.User.ID}}Guardar Cambios{{else}}Crear Usuario{{end}}</button>
+    </div>
+</form>
+{{end}}

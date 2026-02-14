@@ -1,0 +1,32 @@
+{
+    "debug": true,
+    "server": {
+        "port": 8080,
+        "host": "0.0.0.0",
+        "readTimeout": 15,
+        "writeTimeout": 15
+    },
+    "database": {
+        "path": "./data/bicicletapp.db"
+    },
+    "business": {
+        "name": "BicicletAPP",
+        "tagline": "Tu taller de confianza",
+        "logo": "/static/images/logo.png",
+        "primaryColor": "#2d6a4f",
+        "secondaryColor": "#40916c",
+        "accentColor": "#95d5b2",
+        "contactEmail": "contacto@bicicletapp.com",
+        "contactPhone": "+54 9 11 1234-5678"
+    },
+    "features": {
+        "payments": true,
+        "sms": false,
+        "surveys": true,
+        "emailNotifications": true
+    },
+    "jwt": {
+        "secret": "CHANGE_THIS_SECRET_IN_PRODUCTION",
+        "expirationHours": 24
+    }
+}

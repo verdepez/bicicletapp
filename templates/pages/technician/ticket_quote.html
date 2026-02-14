@@ -1,0 +1,105 @@
+{{define "content"}}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Presupuesto #{{.Data.Quote.ID}}</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            width: 80mm;
+            margin: 0;
+            padding: 10px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 5px;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media print {
+            body {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body onload="window.print()">
+    <div class="header">
+        <div class="bold" style="font-size: 16px;">BICICLETAPP TALLER</div>
+        <div>Presupuesto de Servicio</div>
+        <div>{{formatDate .Data.Quote.CreatedAt}}</div>
+    </div>
+
+    <div class="section">
+        <div class="row">
+            <span>Ticket:</span>
+            <span class="bold">#{{.Data.Ticket.TrackingCode}}</span>
+        </div>
+        <div class="row">
+            <span>Cliente:</span>
+            <span class="bold">{{if .Data.Booking.Customer}}{{.Data.Booking.Customer.Name}}{{end}}</span>
+        </div>
+        <div>{{if .Data.Booking.Customer}}{{.Data.Booking.Customer.Phone}}{{end}}</div>
+    </div>
+
+    <div class="section">
+        <div class="bold">Bicicleta:</div>
+        <div>{{if .Data.Booking.Bicycle.Brand}}{{.Data.Booking.Bicycle.Brand.Name}}{{end}} {{if
+            .Data.Booking.Bicycle.Model}}{{.Data.Booking.Bicycle.Model.Name}}{{end}}</div>
+        <div>Color: {{.Data.Booking.Bicycle.Color}}</div>
+    </div>
+
+    <div class="section">
+        <div class="bold center" style="margin-bottom: 5px;">DETALLE PRESUPUESTO</div>
+        {{range .Data.Quote.Items}}
+        <div style="margin-bottom: 3px;">
+            <div class="bold">{{.Description}}</div>
+            <div class="row">
+                <span>{{.Quantity}} x ${{formatMoney .UnitPrice}}</span>
+                <span>${{formatMoney .Total}}</span>
+            </div>
+        </div>
+        {{end}}
+    </div>
+
+    <div class="section">
+        <div class="row" style="font-size: 14px;">
+            <span class="bold">TOTAL:</span>
+            <span class="bold">${{formatMoney .Data.Quote.Total}}</span>
+        </div>
+    </div>
+
+    <div class="center" style="margin-top: 20px; font-size: 10px;">
+        <div>Presupuesto válido por 7 días.</div>
+        <div>Gracias por su preferencia.</div>
+    </div>
+</body>
+
+</html>
+{{end}}

@@ -1,0 +1,36 @@
+{{define "content"}}
+<h1>{{if .Data.Service}}Editar Servicio{{else}}Nuevo Servicio{{end}}</h1>
+
+<form method="POST" action="{{if .Data.Service}}/admin/services/{{.Data.Service.ID}}{{else}}/admin/services{{end}}">
+    <label for="name">
+        Nombre del Servicio
+        <input type="text" id="name" name="name" value="{{if .Data.Service}}{{.Data.Service.Name}}{{end}}"
+            placeholder="Ej: Ajuste de frenos" required>
+    </label>
+
+    <label for="description">
+        Descripción
+        <textarea id="description" name="description" rows="3"
+            placeholder="Descripción detallada del servicio...">{{if .Data.Service}}{{.Data.Service.Description}}{{end}}</textarea>
+    </label>
+
+    <div class="grid">
+        <label for="base_price">
+            Precio Base ($)
+            <input type="number" id="base_price" name="base_price" step="0.01" min="0"
+                value="{{if .Data.Service}}{{.Data.Service.BasePrice}}{{else}}0{{end}}" required>
+        </label>
+
+        <label for="estimated_hours">
+            Horas Estimadas
+            <input type="number" id="estimated_hours" name="estimated_hours" step="0.5" min="0.5"
+                value="{{if .Data.Service}}{{.Data.Service.EstimatedHours}}{{else}}1{{end}}" required>
+        </label>
+    </div>
+
+    <div class="grid">
+        <a href="/admin/services" role="button" class="secondary outline">Cancelar</a>
+        <button type="submit">{{if .Data.Service}}Guardar Cambios{{else}}Crear Servicio{{end}}</button>
+    </div>
+</form>
+{{end}}

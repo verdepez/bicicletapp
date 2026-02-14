@@ -1,0 +1,188 @@
+{{define "content"}}
+<h1>Nueva Reserva</h1>
+
+<article>
+    <form method="POST" action="/bookings">
+        <label for="service_id">
+            Servicio
+            <select id="service_id" name="service_id" required>
+                <option value="">Selecciona un servicio...</option>
+                {{range .Data.Services}}
+                <option value="{{.ID}}">{{.Name}} - {{formatMoney .BasePrice}}</option>
+                {{end}}
+            </select>
+        </label>
+
+        <div class="grid">
+            <label for="bicycle_id">
+                Bicicleta
+                <select id="bicycle_id" name="bicycle_id" required onchange="toggleNewBikeForm()">
+                    {{if .Data.Bicycles}}
+                    <option value="">Selecciona tu bicicleta...</option>
+                    {{range .Data.Bicycles}}
+                    <option value="{{.ID}}">{{.Brand.Name}} {{.Model.Name}} - {{.Color}}</option>
+                    {{end}}
+                    <option value="new">+ Registrar nueva bicicleta</option>
+                    {{else}}
+                    <option value="new" selected>+ Registrar nueva bicicleta</option>
+                    {{end}}
+                </select>
+            </label>
+        </div>
+
+        <div id="new_bike_form"
+            style="display: none; background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem; border: 1px solid var(--border-color);">
+            <header style="margin-bottom: 1rem;">
+                <h4 style="margin: 0;">Datos de la Bicicleta</h4>
+                <small>Registra tu bicicleta para futuras revisiones</small>
+            </header>
+
+            <input type="hidden" name="new_bicycle" id="new_bicycle_input" value="false">
+
+            <div class="grid">
+                <label for="brand_id">
+                    Marca
+                    <select id="brand_id" name="brand_id">
+                        <option value="">Selecciona marca...</option>
+                        {{range .Data.Brands}}
+                        <option value="{{.ID}}">{{.Name}}</option>
+                        {{end}}
+                    </select>
+                </label>
+
+                <label for="model_id">
+                    Modelo
+                    <select id="model_id" name="model_id">
+                        <option value="">Selecciona modelo...</option>
+                        {{range .Data.Models}}
+                        <option value="{{.ID}}" data-brand="{{.BrandID}}">{{.Name}}</option>
+                        {{end}}
+                    </select>
+                </label>
+            </div>
+
+            <div class="grid">
+                <label for="color">
+                    Color
+                    <input type="text" id="color" name="color" placeholder="Ej: Rojo, Negro mate">
+                </label>
+
+                <label for="serial_number">
+                    N° Serie (Opcional)
+                    <input type="text" id="serial_number" name="serial_number" placeholder="Ubicado bajo el cuadro">
+                </label>
+            </div>
+        </div>
+
+        <div class="grid">
+            <label for="date">
+                Fecha
+                <input type="date" id="date" name="date" required>
+            </label>
+
+            <label for="time">
+                Hora
+                <select id="time" name="time" required>
+                    <option value="">Selecciona una hora...</option>
+                    <option value="09:00">09:00</option>
+                    <option value="10:00">10:00</option>
+                    <option value="11:00">11:00</option>
+                    <option value="12:00">12:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="17:00">17:00</option>
+                </select>
+            </label>
+        </div>
+
+        <label for="notes">
+            Notas (opcional)
+            <textarea id="notes" name="notes"
+                placeholder="Describe el problema o indica detalles importantes..."></textarea>
+        </label>
+
+        <div class="grid">
+            <button type="submit">Reservar</button>
+            <a href="/bookings" role="button" class="secondary outline">Cancelar</a>
+        </div>
+    </form>
+</article>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        toggleNewBikeForm();
+
+        // Setup Filter models by brand logic
+        const brandSelect = document.getElementById('brand_id');
+        const modelSelect = document.getElementById('model_id');
+
+        // Save original options
+        const allModelOptions = Array.from(modelSelect.querySelectorAll('option'));
+
+        // Filter function
+        function filterModels() {
+            const brandId = brandSelect.value;
+            const currentModelMs = modelSelect.value;
+
+            // Reset (keep only placeholder)
+            modelSelect.innerHTML = '<option value="">Selecciona modelo...</option>';
+
+            allModelOptions.forEach(option => {
+                if (option.value === "") return;
+
+                if (!brandId || option.dataset.brand === brandId) {
+                    modelSelect.appendChild(option.cloneNode(true));
+                }
+            });
+        }
+
+        brandSelect.addEventListener('change', filterModels);
+        // Initial filter
+        filterModels();
+    });
+
+    function toggleNewBikeForm() {
+        const select = document.getElementById('bicycle_id');
+        const form = document.getElementById('new_bike_form');
+        const hiddenInput = document.getElementById('new_bike_input');
+        const brandSelect = document.getElementById('brand_id');
+        const modelSelect = document.getElementById('model_id');
+
+        if (select.value === 'new') {
+            form.style.display = 'block';
+            hiddenInput.value = 'true';
+            brandSelect.setAttribute('required', 'required');
+            modelSelect.setAttribute('required', 'required');
+        } else {
+            form.style.display = 'none';
+            hiddenInput.value = 'false';
+            brandSelect.removeAttribute('required');
+            modelSelect.removeAttribute('required');
+        }
+    }
+
+    document.getElementById('date').addEventListener('change', async function () {
+        const date = this.value;
+        if (!date) return;
+
+        const timeSelect = document.getElementById('time');
+        timeSelect.innerHTML = '<option value="">Cargando...</option>';
+
+        try {
+            const response = await fetch('/api/bookings/slots?date=' + date);
+            const slots = await response.json();
+
+            timeSelect.innerHTML = '<option value="">Selecciona una hora...</option>';
+            slots.forEach(slot => {
+                const option = document.createElement('option');
+                option.value = slot;
+                option.textContent = slot;
+                timeSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading slots:', error);
+        }
+    });
+</script>
+{{end}}

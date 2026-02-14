@@ -1,0 +1,312 @@
+{{define "content"}}
+{{$ticket := .Data.Ticket}}
+{{$history := .Data.StatusHistory}}
+{{$map := .Data.StatusMap}}
+
+<article class="tracking-result">
+    <header>
+        <h2>Estado de tu Reparación</h2>
+        <p>Código: <code>{{$ticket.TrackingCode}}</code></p>
+    </header>
+
+    <div class="status-display">
+        <div class="status-badge status-{{$ticket.Status}}">
+            {{ticketStatusLabel $ticket.Status}}
+        </div>
+    </div>
+
+    <!-- Ad Banner (Press Kit) -->
+    {{if .Data.Ad}}
+    <div style="margin: 2rem 0; text-align: center;">
+        <a href="/ad/{{.Data.Ad.ID}}/click" target="_blank"
+            style="display: block; text-decoration: none; transition: transform 0.2s;">
+            {{if eq .Data.Ad.MediaType "video"}}
+            <video src="{{.Data.Ad.MediaURL}}"
+                style="max-width: 100%; border-radius: var(--border-radius); box-shadow: var(--card-shadow);" muted loop
+                autoplay playsinline></video>
+            {{else}}
+            <img src="{{.Data.Ad.MediaURL}}" alt="{{.Data.Ad.Title}}"
+                style="max-width: 100%; border-radius: var(--border-radius); box-shadow: var(--card-shadow);"
+                onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterend', '<p style=\'color:red\'>⚠️ No se pudo cargar la imagen del anuncio.</p>');">
+            {{end}}
+        </a>
+        <small
+            style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.5rem; display: block;">Espacio
+            Patrocinado</small>
+    </div>
+    {{end}}
+
+    <!-- Advanced Visual Progress Step -->
+    <div class="visual-timeline">
+        <!-- Step 1: Recibido -->
+        <div class="visual-timeline-step {{if or (eq $ticket.Status " received") (eq $ticket.Status "diagnosing" ) (eq
+            $ticket.Status "in_progress" ) (eq $ticket.Status "waiting_parts" ) (eq $ticket.Status "ready" ) (eq
+            $ticket.Status "delivered" )}}completed{{end}} {{if eq $ticket.Status "received" }}active{{end}}">
+            <div class="visual-timeline-icon">
+                📥
+            </div>
+            <div class="visual-timeline-content">
+                <div class="visual-timeline-title">Recibido</div>
+                {{if $map.received}}
+                <span class="visual-timeline-date">{{formatDate $map.received.CreatedAt}}</span>
+                <div class="visual-timeline-desc">{{if $map.received.Notes}}{{$map.received.Notes}}{{else}}Tu equipo ha
+                    ingresado al taller.{{end}}</div>
+                {{else}}
+                <span class="visual-timeline-date">-</span>
+                <div class="visual-timeline-desc">Tu equipo ha ingresado al taller.</div>
+                {{end}}
+            </div>
+        </div>
+
+        <!-- Step 2: Diagnóstico -->
+        <div class="visual-timeline-step {{if or (eq $ticket.Status " diagnosing") (eq $ticket.Status "in_progress" )
+            (eq $ticket.Status "waiting_parts" ) (eq $ticket.Status "ready" ) (eq $ticket.Status "delivered"
+            )}}completed{{end}} {{if eq $ticket.Status "diagnosing" }}active{{end}}">
+            <div class="visual-timeline-icon">
+                🔍
+            </div>
+            <div class="visual-timeline-content">
+                <div class="visual-timeline-title">Diagnóstico</div>
+                {{if $map.diagnosing}}
+                <span class="visual-timeline-date">{{formatDate $map.diagnosing.CreatedAt}}</span>
+                <div class="visual-timeline-desc">{{if
+                    $map.diagnosing.Notes}}{{$map.diagnosing.Notes}}{{else}}Evaluación técnica detallada.{{end}}</div>
+                {{else}}
+                <span class="visual-timeline-date"></span>
+                <div class="visual-timeline-desc">Evaluación técnica detallada.</div>
+                {{end}}
+            </div>
+        </div>
+
+        <!-- Step 3: Reparación (covers in_progress and waiting_parts) -->
+        <div class="visual-timeline-step {{if or (eq $ticket.Status " in_progress") (eq $ticket.Status "waiting_parts" )
+            (eq $ticket.Status "ready" ) (eq $ticket.Status "delivered" )}}completed{{end}} {{if or (eq
+            $ticket.Status "in_progress" ) (eq $ticket.Status "waiting_parts" )}}active{{end}}">
+            <div class="visual-timeline-icon">
+                🔧
+            </div>
+            <div class="visual-timeline-content">
+                <div class="visual-timeline-title">Reparación</div>
+                <!-- Check for in_progress OR waiting_parts for data -->
+                {{if $map.in_progress}}
+                <span class="visual-timeline-date">{{formatDate $map.in_progress.CreatedAt}}</span>
+                <div class="visual-timeline-desc">{{if $map.in_progress.Notes}}{{$map.in_progress.Notes}}{{else}}Trabajo
+                    técnico en proceso.{{end}}</div>
+                {{else if $map.waiting_parts}}
+                <span class="visual-timeline-date">{{formatDate $map.waiting_parts.CreatedAt}}</span>
+                <div class="visual-timeline-desc">{{if $map.waiting_parts.Notes}}{{$map.waiting_parts.Notes}}{{else}}En
+                    espera de repuestos.{{end}}</div>
+                {{else}}
+                <span class="visual-timeline-date"></span>
+                <div class="visual-timeline-desc">Trabajo técnico en proceso.</div>
+                {{end}}
+            </div>
+        </div>
+
+        <!-- Step 4: Listo (covers ready and delivered) -->
+        <div class="visual-timeline-step {{if or (eq $ticket.Status " ready") (eq $ticket.Status "delivered"
+            )}}completed{{end}} {{if eq $ticket.Status "ready" }}active{{end}}">
+            <div class="visual-timeline-icon">
+                ✅
+            </div>
+            <div class="visual-timeline-content">
+                <div class="visual-timeline-title">Listo</div>
+                {{if $map.ready}}
+                <span class="visual-timeline-date">{{formatDate $map.ready.CreatedAt}}</span>
+                <div class="visual-timeline-desc">{{if $map.ready.Notes}}{{$map.ready.Notes}}{{else}}Equipo listo para
+                    retiro.{{end}}</div>
+                {{else if $map.delivered}}
+                <!-- Fallback if only 'delivered' exists history-wise (unlikely but safe) -->
+                <span class="visual-timeline-date">{{formatDate $map.delivered.CreatedAt}}</span>
+                <div class="visual-timeline-desc">Equipo entregado.</div>
+                {{else}}
+                <span class="visual-timeline-date"></span>
+                <div class="visual-timeline-desc">Equipo listo para retiro.</div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Quote Section -->
+    {{if .Data.Quote}}
+    {{$quote := .Data.Quote}}
+    <hr>
+    <h3>💰 Presupuesto</h3>
+    <div class="grid">
+        <article style="margin-top: 0;">
+            <header>
+                <strong>Detalle del Presupuesto #{{$quote.ID}}</strong>
+                <span class="badge {{if eq $quote.Status " approved"}}success{{else if eq $quote.Status "rejected"
+                    }}error{{else}}secondary{{end}}" style="float: right;">
+                    {{if eq $quote.Status "approved"}}Aprobado{{else if eq $quote.Status
+                    "rejected"}}Rechazado{{else}}Pendiente{{end}}
+                </span>
+            </header>
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Cant.</th>
+                        <th>Precio</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $quote.Items}}
+                    <tr>
+                        <td>{{.Description}}</td>
+                        <td>{{.Quantity}}</td>
+                        <td>${{formatMoney .UnitPrice}}</td>
+                        <td>${{formatMoney .Total}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" style="text-align: right;">Total:</th>
+                        <td><strong>${{formatMoney $quote.Total}}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            {{if eq $quote.Status "pending"}}
+            <footer style="text-align: center;">
+                <p><small>Al aprobar, confirmas que estás de acuerdo con el presupuesto.</small></p>
+                <form method="POST" action="/tracking/quote/{{$quote.ID}}/approve">
+                    <input type="hidden" name="tracking_code" value="{{$ticket.TrackingCode}}">
+                    <button type="submit" class="contrast">✅ Aprobar Presupuesto</button>
+                </form>
+            </footer>
+            {{end}}
+        </article>
+    </div>
+    {{end}}
+
+    <!-- Survey Section -->
+    {{if or (eq $ticket.Status "delivered") (eq $ticket.Status "ready")}}
+    <hr>
+    <h3>📝 Encuesta de Satisfacción</h3>
+
+    {{if .Data.Survey}}
+    <div
+        style="text-align: center; padding: 1rem; border: 1px solid var(--muted-border-color); border-radius: var(--border-radius); background-color: var(--card-background-color);">
+        <h4>¡Gracias por tu opinión!</h4>
+        <p>Valoraste nuestro servicio con <strong>{{.Data.Survey.Rating}}/5</strong> estrellas.</p>
+        {{if .Data.Survey.Feedback}}
+        <p><em>"{{.Data.Survey.Feedback}}"</em></p>
+        {{end}}
+    </div>
+    {{else}}
+    <div
+        style="padding: 1rem; border: 1px solid var(--muted-border-color); border-radius: var(--border-radius); background-color: var(--card-background-color);">
+        <p>Tu opinión es importante. ¿Cómo calificarías tu experiencia?</p>
+        <form method="POST" action="/tracking/{{$ticket.TrackingCode}}/survey">
+            <label for="rating">Calificación</label>
+            <select name="rating" required>
+                <option value="" disabled selected>Selecciona una calificación</option>
+                <option value="5">⭐⭐⭐⭐⭐ - Excelente</option>
+                <option value="4">⭐⭐⭐⭐ - Muy Buena</option>
+                <option value="3">⭐⭐⭐ - Buena</option>
+                <option value="2">⭐⭐ - Regular</option>
+                <option value="1">⭐ - Mala</option>
+            </select>
+
+            <label for="feedback">Comentarios (opcional)</label>
+            <textarea name="feedback" rows="3" placeholder="¿Algo que podamos mejorar?"></textarea>
+
+            <button type="submit" class="contrast">Enviar Calificación</button>
+        </form>
+    </div>
+    {{end}}
+    {{end}}
+
+    <hr>
+
+    <h3>Historial Detallado</h3>
+    <div class="timeline-detail">
+        {{range $history}}
+        <div class="timeline-item">
+            <div class="marker"></div>
+            <div class="content">
+                <strong>{{formatDate .CreatedAt}} {{formatTime .CreatedAt}}</strong><br>
+                <span>{{ticketStatusLabel .Status}}</span>
+                {{if .Notes}}<p><small>{{.Notes}}</small></p>{{end}}
+            </div>
+        </div>
+        {{end}}
+    </div>
+
+    <footer>
+        <p><small>Última actualización: {{formatDate $ticket.UpdatedAt}} a las {{formatTime $ticket.UpdatedAt}}</small>
+        </p>
+        <a href="/tracking" class="secondary">← Consultar otro código</a>
+    </footer>
+</article>
+
+<style>
+    .timeline-visual {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 2rem 0;
+        position: relative;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .timeline-visual .step {
+        text-align: center;
+        z-index: 1;
+        background: var(--background-color);
+        padding: 0 5px;
+    }
+
+    .timeline-visual .icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.3;
+    }
+
+    .timeline-visual .step.active .icon {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .timeline-visual .line {
+        flex-grow: 1;
+        height: 3px;
+        background: var(--muted-border-color);
+        margin: 0 10px;
+        margin-bottom: 20px;
+        /* Adjust for text */
+    }
+
+    .timeline-visual .line.active {
+        background: var(--primary);
+    }
+
+    .timeline-detail {
+        border-left: 2px solid var(--muted-border-color);
+        padding-left: 20px;
+        margin-top: 20px;
+    }
+
+    .timeline-detail .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .timeline-detail .marker {
+        position: absolute;
+        left: -26px;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        background: var(--primary);
+        border-radius: 50%;
+    }
+</style>
+{{end}}

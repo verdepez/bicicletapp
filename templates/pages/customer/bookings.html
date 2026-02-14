@@ -1,0 +1,37 @@
+{{define "content"}}
+<h1>Mis Reservas</h1>
+
+<a href="/bookings/new" role="button" class="primary">+ Nueva Reserva</a>
+
+<table role="grid">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Servicio</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data}}
+        <tr>
+            <td>{{formatDate .ScheduledAt}} {{formatTime .ScheduledAt}}</td>
+            <td>{{if .Service}}{{.Service.Name}}{{else}}-{{end}}</td>
+            <td>
+                <span class="badge badge-{{.Status}}">
+                    {{if eq .Status "pending"}}Pendiente{{else if eq .Status "confirmed"}}Confirmada{{else if eq .Status
+                    "completed"}}Completada{{else if eq .Status "cancelled"}}Cancelada{{else}}{{.Status}}{{end}}
+                </span>
+            </td>
+            <td>
+                <a href="/bookings/{{.ID}}">Ver</a>
+            </td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="4">No tienes reservas. <a href="/bookings/new">Crea tu primera reserva</a></td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}

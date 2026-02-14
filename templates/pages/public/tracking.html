@@ -1,0 +1,31 @@
+{{define "content"}}
+<article>
+    <header>
+        <h2>🔍 Consultar Estado de Reparación</h2>
+    </header>
+
+    <p>Ingresa el código de seguimiento que recibiste al entregar tu bicicleta.</p>
+
+    <form method="GET" action="/tracking" id="tracking-form">
+        <div class="grid">
+            <input type="text" name="code" id="tracking-code" placeholder="Ej: a1b2c3d4" pattern="[a-fA-F0-9]{8}"
+                title="Código de 8 caracteres hexadecimales" required>
+            <button type="submit">Consultar</button>
+        </div>
+    </form>
+
+    <footer>
+        <small>El código está en el comprobante que te entregamos o en el email de confirmación.</small>
+    </footer>
+</article>
+
+<script>
+    document.getElementById('tracking-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const code = document.getElementById('tracking-code').value.trim().toLowerCase();
+        if (code) {
+            window.location.href = '/tracking/' + code;
+        }
+    });
+</script>
+{{end}}

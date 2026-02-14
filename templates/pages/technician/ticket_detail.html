@@ -1,0 +1,434 @@
+{{define "content"}}
+{{$ticket := .Data.Ticket}}
+{{$booking := .Data.Booking}}
+{{$history := .Data.StatusHistory}}
+{{$parts := .Data.Parts}}
+{{$canEdit := or (eq .User.Role "admin") (eq .User.UserID $ticket.TechnicianID)}}
+
+<!-- Header -->
+<div class="grid" style="align-items: center; margin-bottom: 1rem;">
+    <div>
+        <h2 style="margin-bottom: 0;">Ticket #{{$ticket.TrackingCode}}
+            <small data-tooltip="Prioridad Alta"
+                style="font-size: 0.5em; background-color: #e53e3e; color: white; padding: 2px 6px; border-radius: 4px; vertical-align: middle;">PRIORIDAD
+                ALTA</small>
+        </h2>
+        <small style="color: #666;">Recibido: {{formatDate $ticket.CreatedAt}}, {{formatTime $ticket.CreatedAt}}</small>
+    </div>
+    <div style="text-align: right;">
+        {{if $canEdit}}
+        <form method="POST" action="/tickets/{{$ticket.ID}}/status" style="margin-bottom: 0; display: inline-block;">
+            <select name="status" id="status-select" onchange="validateStatusChange(this)"
+                data-current-status="{{$ticket.Status}}"
+                data-user-role="{{if .User.Role}}{{.User.Role}}{{else}}unknown{{end}}"
+                style="width: auto; margin-bottom: 0; font-weight: bold;">
+                <option value="received" {{if eq $ticket.Status "received" }}selected{{end}}>📥 Recibido</option>
+                <option value="diagnosing" {{if eq $ticket.Status "diagnosing" }}selected{{end}}>🔍 Diagnosticando
+                </option>
+                <option value="in_progress" {{if eq $ticket.Status "in_progress" }}selected{{end}}>🔧 En Progreso
+                </option>
+                <option value="waiting_parts" {{if eq $ticket.Status "waiting_parts" }}selected{{end}}>📦 Esperando
+                    Repuestos</option>
+                <option value="ready" {{if eq $ticket.Status "ready" }}selected{{end}}>✅ Listo para Retirar</option>
+                <option value="delivered" {{if eq $ticket.Status "delivered" }}selected{{end}}>🎉 Entregado</option>
+            </select>
+        </form>
+        {{else}}
+        <h4 style="margin-bottom: 0;"><span class="badge {{statusBadge $ticket.Status}}">{{ticketStatusLabel
+                $ticket.Status}}</span></h4>
+        {{end}}
+    </div>
+</div>
+
+<div class="grid" style="grid-template-columns: 2fr 1fr; align-items: start; gap: 2rem;">
+
+    <!-- LEFT COLUMN (Main) -->
+    <div>
+        <!-- Bicycle Section -->
+        {{if $booking.Bicycle}}
+        <article style="background-color: #f0fff4; border-left: 5px solid #48bb78; padding: 1rem;">
+            <header style="padding: 0; margin-bottom: 0.5rem; background: none; border: none;">
+                <strong>🚴 Bicicleta Vinculada</strong>
+            </header>
+            <div class="grid">
+                <div>
+                    <h3>{{if $booking.Bicycle.Brand}}{{$booking.Bicycle.Brand.Name}}{{end}} {{if
+                        $booking.Bicycle.Model}}{{$booking.Bicycle.Model.Name}}{{end}}</h3>
+                    <p>
+                        Color: {{$booking.Bicycle.Color}} <br>
+                        S/N: {{if $booking.Bicycle.SerialNumber}}{{$booking.Bicycle.SerialNumber}}{{else}}N/A{{end}}
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    {{if $canEdit}}
+                    <button class="outline secondary" onclick="toggleBikeEdit()"
+                        style="font-size: 0.8rem; padding: 0.2rem 0.5rem; width: auto;">Editar</button>
+                    {{end}}
+                </div>
+            </div>
+            <!-- Hidden Edit Form -->
+            <form id="bike-edit-form" method="POST" action="/bicycles/{{$booking.Bicycle.ID}}/update"
+                style="display: none; margin-top: 1rem; background: white; padding: 1rem; border-radius: 4px;">
+                <input type="hidden" name="redirect_to" value="/tickets/{{$ticket.ID}}">
+                <div class="grid">
+                    <label>Color <input type="text" name="color" value="{{$booking.Bicycle.Color}}"></label>
+                    <label>N° Serie <input type="text" name="serial_number"
+                            value="{{$booking.Bicycle.SerialNumber}}"></label>
+                </div>
+                <label>Notas <textarea name="notes" rows="2">{{$booking.Bicycle.Notes}}</textarea></label>
+                <button type="submit" style="width: auto;">Guardar</button>
+                <button type="button" class="secondary outline" onclick="toggleBikeEdit()"
+                    style="width: auto;">Cancelar</button>
+            </form>
+        </article>
+        {{else}}
+        <!-- Warning Box -->
+        <article style="background-color: #fffbeb; border-left: 5px solid #f6e05e; padding: 1rem;">
+            <header style="padding: 0; margin-bottom: 0.5rem; background: none; border: none;">
+                <strong>⚠️ Bicicleta</strong>
+            </header>
+            <p>Bicicleta no registrada. Es necesario vincular una bicicleta para completar el servicio.</p>
+            <div style="text-align: left;">
+                <button onclick="openBikeModal()" class="contrast"
+                    style="background-color: #d69e2e; border-color: #d69e2e; color: white; width: auto;">Registrar Bici
+                    Ahora</button>
+            </div>
+        </article>
+        {{end}}
+
+        <!-- Work Order Section -->
+        <article>
+            <header><strong>Orden de Trabajo</strong></header>
+
+            <h4>{{if $booking.Service}}{{$booking.Service.Name}}{{else}}Servicio General{{end}}</h4>
+
+            <!-- Client Notes Box -->
+            <div
+                style="background-color: #ebf8ff; border: 1px solid #bee3f8; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+                <strong>💬 Nota del Cliente:</strong>
+                <p style="margin-bottom: 0; font-style: italic;">"{{if $booking.Notes}}{{$booking.Notes}}{{else}}Sin
+                    notas adicionales{{end}}"</p>
+            </div>
+
+            <!-- DYNAMIC CHECKLIST / PARTS -->
+            <div id="parts-list">
+                {{range $parts}}
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; padding: 0.5rem; background: #f9f9f9; border-radius: 4px;">
+                    <label style="margin-bottom: 0; flex-grow: 1;">
+                        <input type="checkbox" onchange="togglePart({{.ID}})" {{if eq .Status "done" }}checked{{end}}
+                            {{if not $canEdit}}disabled{{end}}>
+                        {{.Name}}
+                    </label>
+                    <form method="POST" action="/tickets/{{$ticket.ID}}/parts/{{.ID}}/delete" style="margin: 0;">
+                        {{if $canEdit}}
+                        <button type="submit" class="outline secondary"
+                            style="border: none; padding: 0.2rem; font-size: 0.8rem;">🗑️</button>
+                        {{end}}
+                    </form>
+                </div>
+                {{end}}
+            </div>
+
+            <!-- Add Part Form -->
+            {{if $canEdit}}
+            <div id="add-part-form"
+                style="display: none; margin-top: 1rem; background: #f0f0f0; padding: 1rem; border-radius: 4px;">
+                <form method="POST" action="/tickets/{{$ticket.ID}}/parts" style="margin-bottom: 0;">
+                    <div class="grid">
+                        <input type="text" name="name" placeholder="Nombre del repuesto o tarea..." required>
+                        <button type="submit" style="width: auto;">Agregar</button>
+                    </div>
+                </form>
+            </div>
+
+            <a href="javascript:void(0)" onclick="toggleAddPart()" style="display: block; margin-top: 1rem;">+ Agregar
+                repuesto / tarea...</a>
+            {{end}}
+
+            <hr>
+
+            <!-- Tech Notes -->
+            <form method="POST" action="/tickets/{{$ticket.ID}}/notes">
+                <label><strong>Notas Internas / Diagnóstico</strong></label>
+                {{if $canEdit}}
+                <textarea name="notes" rows="3"
+                    placeholder="Escribe notas técnicas aquí...">{{$ticket.Notes}}</textarea>
+                <button type="submit" class="secondary outline" style="width: auto;">Guardar Notas</button>
+                {{else}}
+                <div style="background: #f9f9f9; padding: 1rem; border-radius: 4px; white-space: pre-wrap;">{{if
+                    $ticket.Notes}}{{$ticket.Notes}}{{else}}Sin notas registradas.{{end}}</div>
+                {{end}}
+            </form>
+        </article>
+
+        <!-- Timeline Section -->
+        <article>
+            <header><strong>Historial</strong></header>
+            <div class="vertical-timeline">
+                {{range $history}}
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <p class="heading">
+                            <strong>{{formatDate .CreatedAt}} {{formatTime .CreatedAt}}</strong>:
+                            {{ticketStatusLabel .Status}}
+                        </p>
+                        {{if .Notes}}<p><small>{{.Notes}}</small></p>{{end}}
+                        <p><small style="color: #718096;">Por: {{if .User}}{{.User.Name}}{{else}}Sistema{{end}}</small>
+                        </p>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        </article>
+    </div>
+
+    <!-- RIGHT COLUMN (Sidebar) -->
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+
+        <!-- Client Card -->
+        <article>
+            <header><strong>Cliente</strong></header>
+            {{if $booking.Customer}}
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <div
+                    style="background: #eee; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    👤</div>
+                <div>
+                    <strong>{{$booking.Customer.Name}}</strong><br>
+                    <small>Cliente</small>
+                </div>
+            </div>
+            <p style="margin-bottom: 0.5rem;">
+                📞 {{$booking.Customer.Phone}}
+                <a href="https://wa.me/{{$booking.Customer.Phone}}" target="_blank" style="margin-left: 5px;">[Enviar
+                    Mensaje]</a>
+            </p>
+            <p>✉️ {{$booking.Customer.Email}}</p>
+            {{else}}
+            <p>Información de cliente no disponible</p>
+            {{end}}
+        </article>
+
+        <!-- Summary & Actions -->
+        <article>
+            <header><strong>Resumen</strong></header>
+
+            <label>Mecánico Asignado:
+                {{if eq .User.Role "admin"}}
+                <form method="POST" action="/admin/tickets/{{$ticket.ID}}/technician" style="margin: 0;">
+                    <select name="technician_id" onchange="this.form.submit()" style="margin-bottom: 0;">
+                        <option value="0">-- Sin Asignar --</option>
+                        {{$currentTechID := $ticket.TechnicianID}}
+                        {{range .Data.Technicians}}
+                        <option value="{{.ID}}" {{if eq .ID $currentTechID}}selected{{end}}>{{.Name}}</option>
+                        {{end}}
+                    </select>
+                </form>
+                {{else}}
+                <select disabled>
+                    <option>{{if $ticket.Technician}}{{$ticket.Technician.Name}}{{else}}Sin asignar{{end}}</option>
+                </select>
+                {{end}}
+            </label>
+
+            {{if .Data.Quote}}
+            {{$quote := .Data.Quote}}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span>Total Estimado:</span>
+                <strong style="font-size: 1.2rem;">$ {{formatMoney $quote.Total}}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span>Estado:</span>
+                <span class="badge {{if eq $quote.Status " approved"}}success{{else if eq $quote.Status "rejected"
+                    }}error{{else}}secondary{{end}}">
+                    {{if eq $quote.Status "approved"}}Aprobado{{else if eq $quote.Status
+                    "rejected"}}Rechazado{{else}}Pendiente{{end}}
+                </span>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <a href="/tickets/{{$ticket.ID}}/quote" target="_blank" role="button" class="outline"
+                    style="width: 100%;">📄 Ver Presupuesto</a>
+            </div>
+            {{else}}
+            <div style="margin-bottom: 1rem;">
+                <a href="/quotes/new/{{$booking.ID}}?ticket_id={{$ticket.ID}}" role="button" class="outline"
+                    style="width: 100%;">💰 Crear Presupuesto</a>
+            </div>
+            {{end}}
+
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- Save Changes removed as requested -->
+
+                <a href="/tickets/{{$ticket.ID}}/label" target="_blank" role="button" class="secondary outline">
+                    🖨️ Imprimir Etiqueta Taller
+                </a>
+
+                {{if .Data.Quote}}
+                {{$quote := .Data.Quote}}
+                {{$waMessage := printf "Hola %s. Presupuesto para %s %s. Ticket #%s. Total: $%s. Detalles en su cuenta."
+                ($booking.Customer.Name) ($booking.Bicycle.Brand.Name) ($booking.Bicycle.Model.Name)
+                ($ticket.TrackingCode) (formatMoney $quote.Total)}}
+                <a href="https://wa.me/{{if $booking.Customer}}{{$booking.Customer.Phone}}{{end}}?text={{$waMessage}}"
+                    target="_blank" role="button"
+                    style="background-color: #25D366; border-color: #25D366; width: 100%;">
+                    📨 Enviar Presupuesto
+                </a>
+                {{end}}
+
+                <!-- Generic Notification Button -->
+                {{if $booking}}{{if $booking.Customer}}{{if $booking.Customer.Phone}}
+                {{$phone := $booking.Customer.Phone}}
+                {{$name := $booking.Customer.Name}}
+                {{$code := $ticket.TrackingCode}}
+                {{$status := ticketStatusLabel $ticket.Status}}
+                <a href="https://wa.me/{{$phone}}?text=Hola%20{{$name}}%2C%20estado%20ticket%20{{$code}}%3A%20{{$status}}"
+                    target="_blank" role="button" class="contrast outline"
+                    style="width: 100%; border-color: #25D366; color: #25D366;">
+                    🔔 Notificar Estado
+                </a>
+                {{end}}{{end}}{{end}}
+            </div>
+        </article>
+
+        <!-- QR Code -->
+        {{if $ticket.QRCodeBase64}}
+        <article style="text-align: center;">
+            <img src="data:image/png;base64,{{$ticket.QRCodeBase64}}" alt="QR Code" style="max-width: 150px;">
+            <p><small>Tracking QR</small></p>
+        </article>
+        {{end}}
+
+    </div>
+</div>
+
+<!-- Bicycle Registration Modal -->
+<dialog id="bicycle_modal">
+    <article>
+        <header>
+            <button aria-label="Close" rel="prev" onclick="closeBikeModal()"></button>
+            <h3>Registrar Bicicleta</h3>
+        </header>
+        <p>Complete los datos para vincular una bicicleta a este ticket.</p>
+
+        <form method="POST" action="/bookings/{{$booking.ID}}/bicycle">
+            <input type="hidden" name="redirect_to" value="/tickets/{{$ticket.ID}}">
+
+            <label for="color">Color
+                <input type="text" name="color" placeholder="Ej: Rojo, Azul..." required>
+            </label>
+
+            <label for="serial_number">Número de Serie (Opcional)
+                <input type="text" name="serial_number" placeholder="S/N del cuadro...">
+            </label>
+
+            <label for="notes">Notas / Detalles
+                <textarea name="notes" placeholder="Ej: Marca Trek, Modelo Marlin 5..."></textarea>
+            </label>
+
+            <footer>
+                <button type="button" class="secondary" onclick="closeBikeModal()">Cancelar</button>
+                <button type="submit">Registrar Bicicleta</button>
+            </footer>
+        </form>
+    </article>
+</dialog>
+
+
+<script>
+    function toggleBikeEdit() {
+        const form = document.getElementById('bike-edit-form');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    }
+
+    function toggleAddPart() {
+        const form = document.getElementById('add-part-form');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    }
+
+    // Modal Helpers
+    function openBikeModal() {
+        document.getElementById('bicycle_modal').setAttribute('open', true);
+    }
+    function closeBikeModal() {
+        document.getElementById('bicycle_modal').removeAttribute('open');
+    }
+
+    // AJAX Part Toggle
+    function togglePart(partId) {
+        fetch(`/tickets/{{$ticket.ID}}/parts/${partId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'HX-Request': 'true' // Mark as AJAX
+            }
+        }).then(response => {
+            if (!response.ok) {
+                alert('Error connecting to server');
+            }
+        }).catch(err => {
+            console.error(err);
+        });
+    }
+    function validateStatusChange(selectInfo) {
+        const newStatus = selectInfo.value;
+        const currentStatus = selectInfo.getAttribute('data-current-status');
+        const userRole = selectInfo.getAttribute('data-user-role');
+
+        if (userRole === 'technician') {
+            let valid = false;
+            // Define allowed transitions (Forward Only)
+            // received -> diagnosing
+            // diagnosing -> in_progress, waiting_parts, ready
+            // in_progress -> waiting_parts, ready
+            // waiting_parts -> in_progress, ready
+            // ready -> delivered
+
+            if (currentStatus === newStatus) return; // No change
+
+            switch (currentStatus) {
+                case 'received':
+                    if (newStatus === 'diagnosing') valid = true;
+                    break;
+                case 'diagnosing':
+                    if (['in_progress', 'waiting_parts', 'ready'].includes(newStatus)) valid = true;
+                    break;
+                case 'in_progress':
+                    if (['waiting_parts', 'ready'].includes(newStatus)) valid = true;
+                    break;
+                case 'waiting_parts':
+                    if (['in_progress', 'ready'].includes(newStatus)) valid = true;
+                    break;
+                case 'ready':
+                    if (newStatus === 'delivered') valid = true;
+                    break;
+                case 'delivered':
+                    valid = false; // End of line
+                    break;
+                default:
+                    // If unknown status, maybe let it pass or strict?
+                    // Let's assume strict forward only, so if we are in a weird state, maybe allow diagnosing?
+                    // For now, allow nothing to be safe, or just alert.
+                    valid = false;
+            }
+
+            if (!valid) {
+                alert('⚠️ No puedes volver a un estado anterior o saltar pasos obligatorios.\nSolo se permite avanzar en el flujo de trabajo.');
+                selectInfo.value = currentStatus; // Revert
+                return;
+            }
+        }
+
+        // If valid or admin, submit
+        selectInfo.form.submit();
+    }
+</script>
+
+{{end}}

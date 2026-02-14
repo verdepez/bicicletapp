@@ -1,0 +1,83 @@
+{{define "content"}}
+<div class="container-fluid">
+    <nav aria-label="breadcrumb">
+        <ul>
+            <li><a href="/workshop">Taller</a></li>
+            <li>Nuevo Ticket</li>
+        </ul>
+    </nav>
+
+    <h1>📝 Nuevo Ticket (Atención Rápida)</h1>
+    <p>Utilice este formulario para clientes que llegan directamente al taller (Walk-in).</p>
+
+    <form method="POST" action="/tickets/create_direct">
+        <div class="grid">
+            <!-- Customer Section -->
+            <article>
+                <header><strong>1. Cliente</strong></header>
+                <label for="email">Email del Cliente
+                    <input type="email" name="email" id="email" placeholder="cliente@ejemplo.com" required>
+                    <small>Si existe, se usará sus datos. Si no, se creará uno nuevo.</small>
+                </label>
+
+                <div class="grid">
+                    <label for="name">Nombre Completo
+                        <input type="text" name="name" id="name" placeholder="Juan Pérez" required>
+                    </label>
+                    <label for="phone">Teléfono
+                        <input type="tel" name="phone" id="phone" placeholder="+56 9 1234 5678" required>
+                    </label>
+                </div>
+            </article>
+
+            <!-- Bicycle Section -->
+            <article>
+                <header><strong>2. Bicicleta</strong></header>
+                <div class="grid">
+                    <label for="brand">Marca
+                        <input type="text" name="brand" list="brands_list" placeholder="Ej: Trek, Giant..." required>
+                        <datalist id="brands_list">
+                            <!-- Popular brands could be injected here -->
+                            <option value="Trek">
+                            <option value="Giant">
+                            <option value="Specialized">
+                            <option value="Cannondale">
+                            <option value="Scott">
+                            <option value="Oxford">
+                        </datalist>
+                    </label>
+                    <label for="model">Modelo
+                        <input type="text" name="model" placeholder="Ej: Marlin 5" required>
+                    </label>
+                </div>
+                <div class="grid">
+                    <label for="color">Color
+                        <input type="text" name="color" placeholder="Ej: Rojo mate" required>
+                    </label>
+                    <label for="serial">N° Serie (Opcional)
+                        <input type="text" name="serial" placeholder="S/N del cuadro">
+                    </label>
+                </div>
+            </article>
+        </div>
+
+        <!-- Service Section -->
+        <article>
+            <header><strong>3. Servicio y Detalles</strong></header>
+            <label for="service_id">Servicio Solicitado
+                <select name="service_id" required>
+                    {{range .Data.Services}}
+                    <option value="{{.ID}}">{{.Name}} - ${{formatMoney .BasePrice}}</option>
+                    {{end}}
+                </select>
+            </label>
+
+            <label for="notes">Notas Iniciales / Síntomas
+                <textarea name="notes" rows="3" placeholder="El cliente indica que..."></textarea>
+            </label>
+
+            <button type="submit" class="primary" style="font-size: 1.2rem;">🚀 Crear Ticket Inmediato</button>
+        </article>
+    </form>
+</div>
+{{end}}

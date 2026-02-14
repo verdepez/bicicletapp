@@ -1,0 +1,39 @@
+{{define "content"}}
+<h1>Nuestros Servicios</h1>
+<p>Contamos con técnicos especializados para todo tipo de reparaciones y mantenimiento.</p>
+
+<div class="grid">
+    {{range .Data}}
+    <article class="service-card">
+        <header>
+            <h3>{{.Name}}</h3>
+        </header>
+        <p>{{.Description}}</p>
+        <footer>
+            <div class="service-meta">
+                <span class="price">{{formatMoney .BasePrice}}</span>
+                <span class="duration">⏱️ ~{{.EstimatedHours}}h</span>
+            </div>
+            {{if $.User}}
+            <a href="/bookings/new?service={{.ID}}" role="button" class="outline small">Reservar</a>
+            {{else}}
+            <a href="/login" role="button" class="outline small">Reservar</a>
+            {{end}}
+        </footer>
+    </article>
+    {{else}}
+    <p>No hay servicios disponibles en este momento.</p>
+    {{end}}
+</div>
+
+<section class="cta">
+    <article>
+        <h2>¿No encuentras lo que buscas?</h2>
+        <p>Contáctanos y te ayudamos con cualquier reparación especial.</p>
+        <p>
+            📧 {{.Config.Business.ContactEmail}}<br>
+            📞 {{.Config.Business.ContactPhone}}
+        </p>
+    </article>
+</section>
+{{end}}

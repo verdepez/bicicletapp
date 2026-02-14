@@ -1,0 +1,66 @@
+{{define "content"}}
+<h1>💰 Reporte de Ingresos</h1>
+
+<article>
+    <header>
+        <h3>📅 Filtros</h3>
+    </header>
+    <form method="GET" action="/admin/reports/revenue">
+        <div class="grid">
+            <label>
+                Desde
+                <input type="date" name="from" value="{{.Data.FromDate}}">
+            </label>
+            <label>
+                Hasta
+                <input type="date" name="to" value="{{.Data.ToDate}}">
+            </label>
+            <button type="submit" style="align-self: end;">Filtrar</button>
+        </div>
+    </form>
+</article>
+
+<div class="grid">
+    <article>
+        <header>Ingresos Totales</header>
+        <p style="font-size: 2rem; color: green;">{{if .Data.Stats}}{{formatMoney
+            .Data.Stats.TotalRevenue}}{{else}}$0{{end}}</p>
+    </article>
+    <article>
+        <header>Tickets Facturados</header>
+        <p style="font-size: 2rem;">{{if .Data.Stats}}{{.Data.Stats.TotalTickets}}{{else}}0{{end}}</p>
+    </article>
+    <article>
+        <header>Promedio por Ticket</header>
+        <p style="font-size: 2rem;">{{if .Data.Stats}}{{formatMoney .Data.Stats.AvgTicket}}{{else}}$0{{end}}</p>
+    </article>
+</div>
+
+{{if .Data.ByService}}
+<article>
+    <header>
+        <h3>Ingresos por Servicio</h3>
+    </header>
+    <table role="grid">
+        <thead>
+            <tr>
+                <th>Servicio</th>
+                <th>Cantidad</th>
+                <th>Ingresos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Data.ByService}}
+            <tr>
+                <td>{{.Name}}</td>
+                <td>{{.Count}}</td>
+                <td>{{formatMoney .Revenue}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</article>
+{{end}}
+
+<a href="/admin/reports">← Volver a Reportes</a>
+{{end}}

@@ -1,0 +1,59 @@
+{{define "content"}}
+<h1>Gestión de Marcas</h1>
+
+<a href="/admin/brands/new" role="button" class="primary">+ Nueva Marca</a>
+
+<table role="grid">
+    <thead>
+        <tr>
+            <th style="width: 80px;">Logo</th>
+            <th>Nombre</th>
+            <th style="width: 180px;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data}}
+        <tr>
+            <td style="text-align: center; vertical-align: middle;">
+                {{if .LogoURL}}
+                <img src="{{.LogoURL}}" alt="{{.Name}}" style="max-height: 40px; max-width: 60px; object-fit: contain;"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span style="display: none; font-size: 1.5rem;">🚲</span>
+                {{else}}
+                <span style="font-size: 1.5rem;">🚲</span>
+                {{end}}
+            </td>
+            <td style="vertical-align: middle;">
+                <strong>{{.Name}}</strong>
+                {{if .LogoURL}}
+                <br><small style="color: #666; word-break: break-all;">{{.LogoURL}}</small>
+                {{end}}
+            </td>
+            <td style="vertical-align: middle;">
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <a href="/admin/brands/{{.ID}}" role="button" class="outline"
+                        style="padding: 6px 10px; font-size: 0.8rem; margin: 0;">✏️ Editar</a>
+                    <form method="POST" action="/admin/brands/{{.ID}}/delete" style="margin: 0;">
+                        <button type="submit" class="secondary" style="padding: 6px 10px; font-size: 0.8rem; margin: 0;"
+                            onclick="return confirm('¿Eliminar marca {{.Name}}?')">🗑️ Eliminar</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="3">No hay marcas registradas. <a href="/admin/brands/new">Crea la primera</a></td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+
+<style>
+    /* Asegurar que los botones en la tabla tengan el mismo tamaño */
+    table [role="button"],
+    table button {
+        white-space: nowrap;
+        min-width: auto;
+    }
+</style>
+{{end}}

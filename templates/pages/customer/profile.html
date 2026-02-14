@@ -1,0 +1,69 @@
+{{define "content"}}
+<h1>👤 Mi Perfil</h1>
+
+<form method="POST" action="/profile">
+    <article>
+        <header>
+            <h3>Información Personal</h3>
+        </header>
+
+        <label for="name">
+            Nombre Completo
+            <input type="text" id="name" name="name" value="{{.Data.User.Name}}" required>
+        </label>
+
+        <label for="email">
+            Email
+            <input type="email" id="email" name="email" value="{{.Data.User.Email}}" required>
+        </label>
+
+        <label for="phone">
+            Teléfono
+            <input type="tel" id="phone" name="phone" value="{{.Data.User.Phone}}" placeholder="+56 9 1234 5678">
+        </label>
+    </article>
+
+    <article>
+        <header>
+            <h3>🔐 Cambiar Contraseña</h3>
+        </header>
+
+        <label for="current_password">
+            Contraseña Actual
+            <input type="password" id="current_password" name="current_password">
+        </label>
+
+        <label for="new_password">
+            Nueva Contraseña
+            <input type="password" id="new_password" name="new_password" minlength="8"
+                placeholder="Mínimo 8 caracteres">
+        </label>
+
+        <label for="confirm_password">
+            Confirmar Nueva Contraseña
+            <input type="password" id="confirm_password" name="confirm_password">
+        </label>
+    </article>
+
+    <button type="submit">💾 Guardar Cambios</button>
+</form>
+
+<hr>
+
+<article>
+    <header>
+        <h3>📊 Estadísticas</h3>
+    </header>
+
+    <dl>
+        <dt>Miembro desde</dt>
+        <dd>{{formatDate .Data.User.CreatedAt}}</dd>
+
+        <dt>Total Reservas</dt>
+        <dd>{{if .Data.Stats}}{{.Data.Stats.TotalBookings}}{{else}}0{{end}}</dd>
+
+        <dt>Servicios Completados</dt>
+        <dd>{{if .Data.Stats}}{{.Data.Stats.CompletedServices}}{{else}}0{{end}}</dd>
+    </dl>
+</article>
+{{end}}

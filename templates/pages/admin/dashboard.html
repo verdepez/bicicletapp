@@ -1,0 +1,43 @@
+{{define "content"}}
+<h1>🛠️ Panel de Administración</h1>
+
+<div class="grid">
+    <article class="stat-card">
+        <h3>👥 Usuarios</h3>
+        <span class="stat-number">{{.Data.UserCount}}</span>
+        <small>{{.Data.CustomerCount}} clientes, {{.Data.TechnicianCount}} técnicos</small>
+    </article>
+    <article class="stat-card">
+        <h3>📅 Reservas</h3>
+        <span class="stat-number">{{.Data.BookingCount}}</span>
+        <small>{{.Data.PendingBookings}} pendientes</small>
+    </article>
+    <article class="stat-card">
+        <h3>⭐ Satisfacción</h3>
+        <span class="stat-number">{{printf "%.1f" .Data.AvgRating}}/5</span>
+        <small>Últimos 30 días</small>
+    </article>
+</div>
+
+<h2>Tickets por Estado</h2>
+<div class="grid">
+    {{range $status, $count := .Data.TicketCounts}}
+    <article class="mini-stat">
+        <span class="label">{{ticketStatusLabel $status}}</span>
+        <span class="value">{{$count}}</span>
+    </article>
+    {{end}}
+</div>
+
+<h2>⚡ Acciones Rápidas</h2>
+<div class="grid">
+    <a href="/tickets/new" role="button" class="outline">🚀 Nuevo Ticket Taller</a>
+    <a href="/admin/users" role="button" class="outline">👥 Gestionar Usuarios</a>
+    <a href="/admin/services" role="button" class="outline">🔧 Gestionar Servicios</a>
+    <a href="/admin/brands" role="button" class="outline">🏷️ Gestionar Marcas</a>
+    <a href="/admin/tickets" role="button" class="outline">🎫 Gestionar Tickets</a>
+    <a href="/admin/reports" role="button" class="outline">📊 Ver Reportes</a>
+    <a href="/admin/ads" role="button" class="outline">📢 Gestor de Anuncios</a>
+    <a href="/admin/settings" role="button" class="outline">⚙️ Configuración</a>
+</div>
+{{end}}

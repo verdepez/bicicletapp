@@ -1,0 +1,49 @@
+{{define "content"}}
+<h1>Mi Panel</h1>
+
+<div class="grid">
+    <article>
+        <header>
+            <h3>📅 Mis Reservas</h3>
+        </header>
+        {{if .Data.Bookings}}
+        <ul class="booking-list">
+            {{range .Data.Bookings}}
+            <li>
+                <span class="date">{{formatDate .ScheduledAt}}</span>
+                <span class="service">{{if .Service}}{{.Service.Name}}{{else}}Servicio{{end}}</span>
+                <span class="status badge-{{.Status}}">{{statusLabel .Status}}</span>
+            </li>
+            {{end}}
+        </ul>
+        {{else}}
+        <p>No tienes reservas recientes.</p>
+        {{end}}
+        <footer>
+            <a href="/bookings">Ver todas</a> |
+            <a href="/bookings/new">Nueva reserva</a>
+        </footer>
+    </article>
+
+    <article>
+        <header>
+            <h3>💰 Presupuestos Pendientes</h3>
+        </header>
+        <p>Revisa y aprueba los presupuestos de tus reparaciones.</p>
+        <footer>
+            <a href="/quotes">Ver presupuestos</a>
+        </footer>
+    </article>
+</div>
+
+<article>
+    <header>
+        <h3>⚡ Acciones Rápidas</h3>
+    </header>
+    <div class="grid">
+        <a href="/bookings/new" role="button">📅 Nueva Reserva</a>
+        <a href="/tracking" role="button" class="outline">🔍 Consultar Estado</a>
+        <a href="/profile" role="button" class="outline">👤 Mi Perfil</a>
+    </div>
+</article>
+{{end}}

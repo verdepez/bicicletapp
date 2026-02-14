@@ -1,0 +1,102 @@
+{{define "content"}}
+<h1>Detalles de Reserva #{{.Data.Booking.ID}}</h1>
+
+<article>
+    <header>
+        <div class="grid">
+            <h3>{{.Data.Booking.Service.Name}}</h3>
+            <span class="badge">{{.Data.Booking.Status}}</span>
+        </div>
+    </header>
+
+    <dl>
+        <dt>📅 Fecha Programada</dt>
+        <dd>{{formatDate .Data.Booking.ScheduledAt}}</dd>
+
+        <dt>🔧 Servicio</dt>
+        <dd>{{.Data.Booking.Service.Name}}</dd>
+
+        <dt>📝 Notas</dt>
+        <dd>{{if .Data.Booking.Notes}}{{.Data.Booking.Notes}}{{else}}Sin notas{{end}}</dd>
+
+        <dt>📆 Creada</dt>
+        <dd>{{formatDate .Data.Booking.CreatedAt}}</dd>
+    </dl>
+
+    {{if eq .Data.Booking.Status "pending"}}
+    <footer>
+        <form method="POST" action="/bookings/{{.Data.Booking.ID}}/cancel"
+            onsubmit="return confirm('¿Cancelar esta reserva?')">
+            <button type="submit" class="secondary outline">Cancelar Reserva</button>
+        </form>
+    </footer>
+    {{end}}
+</article>
+
+{{if .Data.Quote}}
+<article>
+    <header>
+        <h3>💰 Presupuesto</h3>
+    </header>
+
+    <table role="grid">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Data.Quote.Items}}
+            <tr>
+                <td>{{.Description}}</td>
+                <td>{{.Quantity}}</td>
+                <td>{{formatMoney .UnitPrice}}</td>
+                <td>{{formatMoney .Total}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3">Total</th>
+                <th>{{formatMoney .Data.Quote.Total}}</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    {{if eq .Data.Quote.Status "pending"}}
+    <div class="grid">
+        <form method="POST" action="/quotes/{{.Data.Quote.ID}}/reject">
+            <button type="submit" class="secondary outline" onclick="return confirm('¿Rechazar presupuesto?')">❌
+                Rechazar</button>
+        </form>
+        <form method="POST" action="/quotes/{{.Data.Quote.ID}}/approve">
+            <button type="submit">✅ Aprobar</button>
+        </form>
+    </div>
+    {{end}}
+</article>
+{{end}}
+
+{{if .Data.Ticket}}
+<article>
+    <header>
+        <h3>🎫 Ticket de Trabajo</h3>
+    </header>
+
+    <dl>
+        <dt>Código de Seguimiento</dt>
+        <dd><code>{{.Data.Ticket.TrackingCode}}</code></dd>
+
+        <dt>Estado</dt>
+        <dd><span class="badge">{{ticketStatusLabel .Data.Ticket.Status}}</span></dd>
+    </dl>
+
+    <a href="/tracking/{{.Data.Ticket.TrackingCode}}" role="button" class="outline">Ver Seguimiento</a>
+</article>
+{{end}}
+
+<a href="/bookings">← Volver a Mis Reservas</a>
+{{end}}

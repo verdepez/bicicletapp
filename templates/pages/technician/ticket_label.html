@@ -1,0 +1,72 @@
+{{define "content"}}
+<div class="container"
+    style="max-width: 800px; margin: 0 auto; padding: 2rem; border: 1px solid #ccc; background: white;">
+    <header style="text-align: center; border-bottom: 2px solid black; padding-bottom: 1rem; margin-bottom: 2rem;">
+        <h1>Etiqueta de Taller</h1>
+        <h2>Ticket #{{.Data.Ticket.TrackingCode}}</h2>
+        <p>{{formatDate .Data.Ticket.CreatedAt}}</p>
+    </header>
+
+    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div>
+            <h3>Cliente</h3>
+            <p style="font-size: 1.2rem;">
+                <strong>{{if .Data.Booking.Customer}}{{.Data.Booking.Customer.Name}}{{else}}Anónimo{{end}}</strong><br>
+                {{if .Data.Booking.Customer}}{{.Data.Booking.Customer.Phone}}{{end}}
+            </p>
+        </div>
+        <div>
+            <h3>Bicicleta</h3>
+            <p style="font-size: 1.2rem;">
+                {{if .Data.Booking.Bicycle}}
+                <strong>{{if .Data.Booking.Bicycle.Brand}}{{.Data.Booking.Bicycle.Brand.Name}}{{else}}Marca
+                    Desc.{{end}}</strong><br>
+                Model: {{if .Data.Booking.Bicycle.Model}}{{.Data.Booking.Bicycle.Model.Name}}{{else}}-{{end}}<br>
+                Color: {{.Data.Booking.Bicycle.Color}}
+                {{else}}
+                No Registrada
+                {{end}}
+            </p>
+        </div>
+    </div>
+
+    <div style="margin-top: 2rem; border-top: 1px dashed #ccc; padding-top: 1rem;">
+        <h3>Servicio Solicitado</h3>
+        <p style="font-size: 1.5rem; font-weight: bold;">
+            {{if .Data.Booking.Service}}{{.Data.Booking.Service.Name}}{{else}}Servicio General{{end}}
+        </p>
+    </div>
+
+    <div style="margin-top: 2rem;">
+        <h3>Notas / Observaciones</h3>
+        <div style="border: 1px solid #000; height: 150px; padding: 0.5rem;">
+            {{.Data.Ticket.Notes}}
+        </div>
+    </div>
+
+    <footer style="margin-top: 3rem; text-align: center;">
+        <p>bicicletAPP - Gestión de Taller</p>
+    </footer>
+</div>
+
+<div class="no-print" style="text-align: center; margin-top: 1rem;">
+    <button onclick="window.print()">🖨️ Imprimir</button>
+    <button class="secondary outline" onclick="window.close()">Cerrar</button>
+</div>
+
+<style>
+    @media print {
+        .no-print {
+            display: none;
+        }
+
+        body {
+            background: white;
+        }
+
+        .container {
+            border: none;
+        }
+    }
+</style>
+{{end}}

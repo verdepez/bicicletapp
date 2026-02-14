@@ -1,0 +1,73 @@
+{{define "content"}}
+<h1>📊 Reporte de Reservas</h1>
+
+<article>
+    <header>
+        <h3>📅 Filtros</h3>
+    </header>
+    <form method="GET" action="/admin/reports/bookings">
+        <div class="grid">
+            <label>
+                Desde
+                <input type="date" name="from" value="{{.Data.FromDate}}">
+            </label>
+            <label>
+                Hasta
+                <input type="date" name="to" value="{{.Data.ToDate}}">
+            </label>
+            <button type="submit" style="align-self: end;">Filtrar</button>
+        </div>
+    </form>
+</article>
+
+<div class="grid">
+    <article class="stat-card">
+        <h3>Total Reservas</h3>
+        <span class="stat-number">{{if .Data.Stats}}{{.Data.Stats.Total}}{{else}}0{{end}}</span>
+    </article>
+    <article class="stat-card">
+        <h3>Confirmadas</h3>
+        <span class="stat-number" style="color: #2b6cb0; -webkit-text-fill-color: #2b6cb0;">{{if
+            .Data.Stats}}{{.Data.Stats.Confirmed}}{{else}}0{{end}}</span>
+    </article>
+    <article class="stat-card">
+        <h3>Canceladas</h3>
+        <span class="stat-number" style="color: #c53030; -webkit-text-fill-color: #c53030;">{{if
+            .Data.Stats}}{{.Data.Stats.Cancelled}}{{else}}0{{end}}</span>
+    </article>
+    <article class="stat-card">
+        <h3>Completadas</h3>
+        <span class="stat-number" style="color: #2f855a; -webkit-text-fill-color: #2f855a;">{{if
+            .Data.Stats}}{{.Data.Stats.Completed}}{{else}}0{{end}}</span>
+    </article>
+</div>
+
+{{if .Data.Bookings}}
+<table role="grid">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Servicio</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data.Bookings}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{formatDate .ScheduledAt}}</td>
+            <td>{{if .Customer}}{{.Customer.Name}}{{end}}</td>
+            <td>{{if .Service}}{{.Service.Name}}{{end}}</td>
+            <td><span class="badge">{{.Status}}</span></td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{else}}
+<p>No hay datos en el rango seleccionado.</p>
+{{end}}
+
+<a href="/admin/reports">← Volver a Reportes</a>
+{{end}}

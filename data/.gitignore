@@ -1,0 +1,7 @@
+# BicicletAPP data directory
+# This directory contains the SQLite database file
+# Make sure to backup this directory regularly
+
+*.db
+*.db-shm
+*.db-wal

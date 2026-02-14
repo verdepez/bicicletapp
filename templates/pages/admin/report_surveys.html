@@ -1,0 +1,90 @@
+{{define "content"}}
+<h1>⭐ Reporte de Encuestas</h1>
+
+<div class="grid">
+    <article class="stat-card">
+        <header>Calificación Promedio</header>
+        <p class="stat-value">{{if .Data.AvgRating}}{{printf "%.1f" .Data.AvgRating}}{{else}}0{{end}}/5 ⭐</p>
+    </article>
+    <article class="stat-card">
+        <header>Total Encuestas</header>
+        <p class="stat-value">{{if .Data.TotalSurveys}}{{.Data.TotalSurveys}}{{else}}0{{end}}</p>
+    </article>
+    <article class="stat-card">
+        <header>Tasa de Respuesta</header>
+        <p class="stat-value">{{if .Data.ResponseRate}}{{printf "%.1f" .Data.ResponseRate}}{{else}}0{{end}}%</p>
+    </article>
+</div>
+
+<article>
+    <header>
+        <h3>Distribución de Calificaciones</h3>
+    </header>
+
+    {{if .Data.RatingDist}}
+    <div style="margin-bottom: 2rem;">
+        <!-- Simple Bar Chart -->
+        {{range $stars := .Data.StarLevels}}
+        {{$count := index $.Data.RatingDist $stars}}
+        {{$percent := index $.Data.RatingPercentages $stars}}
+        <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+            <div style="width: 100px;">{{$stars}} ⭐</div>
+            <div
+                style="flex-grow: 1; background-color: var(--muted-border-color); height: 1.5rem; border-radius: 4px; overflow: hidden; position: relative;">
+                <div style="width: {{$percent}}%; background-color: var(--primary); height: 100%;"></div>
+                <span
+                    style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: var(--color);">{{$count}}</span>
+            </div>
+            <div style="width: 50px; text-align: right;">{{$percent}}%</div>
+        </div>
+        {{end}}
+    </div>
+    {{else}}
+    <p>No hay datos de encuestas disponibles.</p>
+    {{end}}
+</article>
+
+{{if .Data.Surveys}}
+<article>
+    <header>
+        <h3>Encuestas Recientes</h3>
+    </header>
+    <div style="overflow-x: auto;">
+        <table role="grid">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Rating</th>
+                    <th>Comentario</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Data.Surveys}}
+                <tr>
+                    <td>{{formatDate .CreatedAt}}</td>
+                    <td>{{.Rating}}/5 ⭐</td>
+                    <td>{{if .Feedback}}{{.Feedback}}{{else}}<em style="color: var(--muted-color);">Sin
+                            comentario</em>{{end}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</article>
+{{end}}
+
+<style>
+    .stat-card {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0;
+        color: var(--primary);
+    }
+</style>
+
+<a href="/admin/reports">← Volver a Reportes</a>
+{{end}}

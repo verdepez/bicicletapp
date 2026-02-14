@@ -1,0 +1,67 @@
+{{define "content"}}
+<section class="hero"
+    style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://loremflickr.com/1200/600/{{.Data.HeroConcept}}/all'); background-size: cover; background-position: center; color: white;">
+    <hgroup>
+        <h1 style="color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">🚲 Bienvenido a {{.Config.Business.Name}}</h1>
+        <p style="color: #f1f5f9; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">{{.Config.Business.Tagline}}</p>
+    </hgroup>
+
+    <div class="grid">
+        <a href="/bookings/new" role="button">📅 Reservar Cita</a>
+        <a href="/tracking" role="button" class="contrast">🔍 Consultar Estado</a>
+    </div>
+</section>
+
+<section>
+    <h2>¿Por qué elegirnos?</h2>
+    <div class="grid">
+        <article>
+            <header>
+                <h3>🔧 Expertos</h3>
+            </header>
+            <p>Técnicos certificados con años de experiencia en todas las marcas.</p>
+        </article>
+        <article>
+            <header>
+                <h3>⚡ Rápidos</h3>
+            </header>
+            <p>Diagnóstico en el momento y tiempos de entrega competitivos.</p>
+        </article>
+        <article>
+            <header>
+                <h3>💰 Transparentes</h3>
+            </header>
+            <p>Presupuestos claros sin sorpresas. Tú decides antes de empezar.</p>
+        </article>
+    </div>
+</section>
+
+<section>
+    <h2>Nuestros Servicios</h2>
+    <div class="grid">
+        <article>
+            <h4>Revisión General</h4>
+            <p>Inspección completa de todos los componentes de tu bici.</p>
+            <a href="/services">Ver más →</a>
+        </article>
+        <article>
+            <h4>Servicio Completo</h4>
+            <p>Mantenimiento preventivo para mantener tu bici como nueva.</p>
+            <a href="/services">Ver más →</a>
+        </article>
+        <article>
+            <h4>Reparaciones</h4>
+            <p>Desde un pinchazo hasta un cambio de transmisión completo.</p>
+            <a href="/services">Ver más →</a>
+        </article>
+    </div>
+</section>
+
+<section class="cta">
+    <article class="cta-box">
+        <h2>¿Listo para dejar tu bici en las mejores manos?</h2>
+        <p>Reserva tu cita online y recibe confirmación inmediata.</p>
+        <a href="/bookings/new" role="button">Reservar Ahora</a>
+    </article>
+</section>
+{{end}}

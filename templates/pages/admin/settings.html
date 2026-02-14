@@ -1,0 +1,51 @@
+{{define "content"}}
+<div class="grid">
+    <section>
+        <hgroup>
+            <h1>⚙️ Configuración del Sistema</h1>
+            <p>Personaliza aspectos generales de la aplicación</p>
+        </hgroup>
+
+        <article>
+            <header>
+                <h3>🖼️ Personalización del Home</h3>
+            </header>
+            <form action="/admin/settings" method="POST">
+                <!-- CSRF Token would go here -->
+
+                <label for="hero_concept">
+                    Concepto del Hero (Imagen de fondo)
+                    <input type="text" id="hero_concept" name="hero_concept" value="{{.Data.HeroConcept}}"
+                        placeholder="ej: bicycle workshop, mountain bike, mechanic" required>
+                    <small>Se utilizará para buscar una imagen aleatoria en Unsplash/LoremFlickr.</small>
+                </label>
+
+                <div class="grid">
+                    <button type="submit">💾 Guardar Cambios</button>
+                    <a href="/admin" role="button" class="secondary outline">Cancelar</a>
+                </div>
+            </form>
+        </article>
+
+        <article>
+            <header>
+                <h3>ℹ️ Información del Negocio (Config.json)</h3>
+            </header>
+            <p>Estos valores se cargan desde el archivo <code>config.json</code> y requieren reinicio para cambiar.</p>
+            <dl>
+                <dt>Nombre</dt>
+                <dd>{{.Data.Config.Business.Name}}</dd>
+
+                <dt>Slogan</dt>
+                <dd>{{.Data.Config.Business.Tagline}}</dd>
+
+                <dt>Email de Contacto</dt>
+                <dd>{{.Data.Config.Business.ContactEmail}}</dd>
+
+                <dt>Teléfono</dt>
+                <dd>{{.Data.Config.Business.ContactPhone}}</dd>
+            </dl>
+        </article>
+    </section>
+</div>
+{{end}}

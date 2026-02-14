@@ -1,0 +1,72 @@
+{{define "content"}}
+<h1>Presupuesto #{{.Data.Quote.ID}}</h1>
+
+<article>
+    <header>
+        <div class="grid">
+            <h3>Detalles</h3>
+            {{if eq .Data.Quote.Status "pending"}}
+            <span class="badge">⏳ Pendiente</span>
+            {{else if eq .Data.Quote.Status "approved"}}
+            <span class="badge badge-success">✅ Aprobado</span>
+            {{else}}
+            <span class="badge badge-error">❌ Rechazado</span>
+            {{end}}
+        </div>
+    </header>
+
+    <dl>
+        <dt>Válido Hasta</dt>
+        <dd>{{formatDate .Data.Quote.ValidUntil}}</dd>
+
+        {{if .Data.Quote.RejectionReason}}
+        <dt>Razón de Rechazo</dt>
+        <dd>{{.Data.Quote.RejectionReason}}</dd>
+        {{end}}
+    </dl>
+
+    <table role="grid">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Cant.</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Data.Quote.Items}}
+            <tr>
+                <td>{{.Description}}</td>
+                <td>{{.Quantity}}</td>
+                <td>{{formatMoney .UnitPrice}}</td>
+                <td>{{formatMoney .Total}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3">Total</th>
+                <th>{{formatMoney .Data.Quote.Total}}</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    {{if eq .Data.Quote.Status "pending"}}
+    <footer>
+        <div class="grid">
+            <form method="POST" action="/quotes/{{.Data.Quote.ID}}/reject">
+                <label for="reason">Razón (opcional)</label>
+                <input type="text" id="reason" name="reason" placeholder="¿Por qué rechazas?">
+                <button type="submit" class="secondary outline">❌ Rechazar</button>
+            </form>
+            <form method="POST" action="/quotes/{{.Data.Quote.ID}}/approve">
+                <button type="submit">✅ Aprobar Presupuesto</button>
+            </form>
+        </div>
+    </footer>
+    {{end}}
+</article>
+
+<a href="/quotes">← Volver a Presupuestos</a>
+{{end}}

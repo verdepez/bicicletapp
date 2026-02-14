@@ -1,0 +1,34 @@
+{{define "content"}}
+<h1>Gestión de Modelos</h1>
+
+<a href="/admin/models/new" role="button" class="primary">+ Nuevo Modelo</a>
+
+<table role="grid">
+    <thead>
+        <tr>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data.Models}}
+        <tr>
+            <td>{{if .Brand}}{{.Brand.Name}}{{else}}Sin marca{{end}}</td>
+            <td>{{.Name}}</td>
+            <td>
+                <a href="/admin/models/{{.ID}}">Editar</a> |
+                <form method="POST" action="/admin/models/{{.ID}}/delete" style="display:inline;">
+                    <button type="submit" class="secondary outline"
+                        onclick="return confirm('¿Eliminar modelo?')">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="3">No hay modelos registrados.</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}

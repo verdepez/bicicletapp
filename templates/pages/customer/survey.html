@@ -1,0 +1,37 @@
+{{define "content"}}
+<h1>⭐ Encuesta de Satisfacción</h1>
+
+<form method="POST" action="/survey/{{.Data.TicketID}}">
+    <article>
+        <header>
+            <h3>¿Cómo fue tu experiencia?</h3>
+        </header>
+
+        <p>Tu opinión nos ayuda a mejorar nuestro servicio.</p>
+
+        <label for="rating">
+            Calificación General
+        </label>
+        <fieldset>
+            <div class="grid">
+                {{range $i := slice 1 2 3 4 5}}
+                <label>
+                    <input type="radio" name="rating" value="{{$i}}" required>
+                    {{$i}} ⭐
+                </label>
+                {{end}}
+            </div>
+        </fieldset>
+
+        <label for="feedback">
+            Comentarios (opcional)
+            <textarea id="feedback" name="feedback" rows="4"
+                placeholder="¿Qué te gustó? ¿Qué podemos mejorar?"></textarea>
+        </label>
+    </article>
+
+    <button type="submit">📤 Enviar Encuesta</button>
+</form>
+
+<p><small>Esta encuesta es anónima. Gracias por tu tiempo.</small></p>
+{{end}}

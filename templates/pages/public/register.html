@@ -1,0 +1,40 @@
+{{define "content"}}
+<article class="auth-form">
+    <header>
+        <h2>Crear Cuenta</h2>
+    </header>
+
+    <form method="POST" action="/register">
+        <label for="name">
+            Nombre Completo
+            <input type="text" id="name" name="name" placeholder="Juan Pérez" required autofocus>
+        </label>
+
+        <label for="email">
+            Correo Electrónico
+            <input type="email" id="email" name="email" placeholder="tu@email.com" required>
+        </label>
+
+        <label for="phone">
+            Teléfono
+            <input type="tel" id="phone" name="phone" placeholder="+54 9 11 1234-5678">
+        </label>
+
+        <label for="password">
+            Contraseña
+            <input type="password" id="password" name="password" placeholder="••••••••" required minlength="6">
+        </label>
+
+        <label for="confirm_password">
+            Confirmar Contraseña
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••" required>
+        </label>
+
+        <button type="submit">Registrarse</button>
+    </form>
+
+    <footer>
+        <p>¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a></p>
+    </footer>
+</article>
+{{end}}

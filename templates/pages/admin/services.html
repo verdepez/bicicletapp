@@ -1,0 +1,34 @@
+{{define "content"}}
+<h1>Gestión de Servicios</h1>
+
+<a href="/admin/services/new" role="button" class="primary">+ Nuevo Servicio</a>
+
+<table role="grid">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio Base</th>
+            <th>Tiempo Est.</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data}}
+        <tr>
+            <td>{{.Name}}</td>
+            <td>{{.Description}}</td>
+            <td>{{formatMoney .BasePrice}}</td>
+            <td>{{.EstimatedHours}}h</td>
+            <td>
+                <a href="/admin/services/{{.ID}}">Editar</a>
+            </td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="5">No hay servicios. <a href="/admin/services/new">Crea el primero</a></td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}

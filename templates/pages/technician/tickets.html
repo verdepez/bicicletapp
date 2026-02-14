@@ -1,0 +1,53 @@
+{{define "content"}}
+<h1>Órdenes de Trabajo</h1>
+
+<nav class="status-filter">
+    <ul>
+        <li><a href="/tickets" {{if not .Data.CurrentStatus}}class="active" {{end}}>Todos</a></li>
+        <li><a href="/tickets?status=received" {{if eq .Data.CurrentStatus "received" }}class="active"
+                {{end}}>Recibidos</a></li>
+        <li><a href="/tickets?status=diagnosing" {{if eq .Data.CurrentStatus "diagnosing" }}class="active"
+                {{end}}>Diagnóstico</a></li>
+        <li><a href="/tickets?status=in_progress" {{if eq .Data.CurrentStatus "in_progress" }}class="active" {{end}}>En
+                Progreso</a></li>
+        <li><a href="/tickets?status=waiting_parts" {{if eq .Data.CurrentStatus "waiting_parts" }}class="active"
+                {{end}}>Esperando</a></li>
+        <li><a href="/tickets?status=ready" {{if eq .Data.CurrentStatus "ready" }}class="active" {{end}}>Listos</a></li>
+    </ul>
+</nav>
+
+<table role="grid">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Estado</th>
+            <th>Notas</th>
+            <th>Actualizado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data.Tickets}}
+        <tr>
+            <td><code>{{.TrackingCode}}</code></td>
+            <td>
+                <span class="badge badge-{{.Status}}">
+                    {{if eq .Status "received"}}📥 Recibido{{else if eq .Status "diagnosing"}}🔍 Diagnóstico{{else if eq
+                    .Status "in_progress"}}🔧 En Progreso{{else if eq .Status "waiting_parts"}}📦 Esperando{{else if eq
+                    .Status "ready"}}✅ Listo{{else if eq .Status "delivered"}}🎉 Entregado{{else}}{{.Status}}{{end}}
+                </span>
+            </td>
+            <td>{{if .Notes}}{{.Notes}}{{else}}-{{end}}</td>
+            <td>{{formatDate .UpdatedAt}} {{formatTime .UpdatedAt}}</td>
+            <td>
+                <a href="/tickets/{{.ID}}" role="button" class="small outline">Ver</a>
+            </td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="5">No hay tickets {{if .Data.CurrentStatus}}con este estado{{end}}.</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}

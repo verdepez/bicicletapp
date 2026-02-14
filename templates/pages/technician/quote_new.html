@@ -1,0 +1,92 @@
+{{define "content"}}
+<h1>Crear Presupuesto</h1>
+
+<article>
+    <header>
+        {{$booking := .Data.Booking}}
+
+        <div class="grid">
+            <div>
+                <strong>Cliente:</strong> {{if $booking.Customer}}{{$booking.Customer.Name}}{{end}}
+            </div>
+            <div>
+                <strong>Servicio:</strong> {{if $booking.Service}}{{$booking.Service.Name}}{{end}}
+            </div>
+            <div>
+                <strong>Notas del Cliente:</strong> {{if $booking.Notes}}{{$booking.Notes}}{{else}}Sin notas{{end}}
+            </div>
+        </div>
+    </header>
+</article>
+
+<form method="POST" action="/quotes/new/{{.Data.Booking.ID}}" id="quoteForm">
+    <input type="hidden" name="ticket_id" value="{{if .Data.TicketID}}{{.Data.TicketID}}{{end}}">
+    <article>
+        <header>
+            <h3>💰 Líneas del Presupuesto</h3>
+        </header>
+
+        <table role="grid" id="itemsTable">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+                <tr class="quote-item">
+                    <td><input type="text" name="item_description[]" placeholder="Mano de obra" required></td>
+                    <td><input type="number" name="item_quantity[]" value="1" min="1" required style="width:80px;">
+                    </td>
+                    <td><input type="number" name="item_price[]" step="0.01" min="0" required style="width:120px;"></td>
+                    <td><button type="button" class="secondary outline small" onclick="removeItem(this)">×</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button type="button" class="secondary outline" onclick="addItem()">+ Agregar Línea</button>
+    </article>
+
+    <article>
+        <header>
+            <h3>📅 Validez</h3>
+        </header>
+
+        <label for="valid_days">
+            Días de Validez
+            <input type="number" id="valid_days" name="valid_days" value="7" min="1" max="30">
+        </label>
+    </article>
+
+    <div class="grid">
+        <a href="/tickets" role="button" class="secondary outline">Cancelar</a>
+        <button type="submit">📤 Enviar Presupuesto</button>
+    </div>
+</form>
+
+<script>
+    let itemIndex = 1;
+
+    function addItem() {
+        const row = document.createElement('tr');
+        row.className = 'quote-item';
+        row.innerHTML = `
+        <td><input type="text" name="item_description[]" required></td>
+        <td><input type="number" name="item_quantity[]" value="1" min="1" required style="width:80px;"></td>
+        <td><input type="number" name="item_price[]" step="0.01" min="0" required style="width:120px;"></td>
+        <td><button type="button" class="secondary outline small" onclick="removeItem(this)">×</button></td>
+    `;
+        document.getElementById('itemsBody').appendChild(row);
+        itemIndex++;
+    }
+
+    function removeItem(btn) {
+        const rows = document.querySelectorAll('.quote-item');
+        if (rows.length > 1) {
+            btn.closest('tr').remove();
+        }
+    }
+</script>
+{{end}}

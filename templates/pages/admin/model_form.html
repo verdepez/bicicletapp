@@ -1,0 +1,27 @@
+{{define "content"}}
+<h1>{{if .Data.Model}}Editar Modelo{{else}}Nuevo Modelo{{end}}</h1>
+
+<form method="POST" action="{{if .Data.Model}}/admin/models/{{.Data.Model.ID}}{{else}}/admin/models{{end}}">
+    <label for="brand_id">
+        Marca
+        <select id="brand_id" name="brand_id" required>
+            <option value="">-- Seleccionar Marca --</option>
+            {{range .Data.Brands}}
+            <option value="{{.ID}}" {{if and $.Data.Model (eq $.Data.Model.BrandID .ID)}}selected{{end}}>{{.Name}}
+            </option>
+            {{end}}
+        </select>
+    </label>
+
+    <label for="name">
+        Nombre del Modelo
+        <input type="text" id="name" name="name" value="{{if .Data.Model}}{{.Data.Model.Name}}{{end}}"
+            placeholder="Ej: Marlin 7, Tarmac SL6..." required>
+    </label>
+
+    <div class="grid">
+        <a href="/admin/models" role="button" class="secondary outline">Cancelar</a>
+        <button type="submit">{{if .Data.Model}}Guardar Cambios{{else}}Crear Modelo{{end}}</button>
+    </div>
+</form>
+{{end}}

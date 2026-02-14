@@ -1,0 +1,22 @@
+{{define "content"}}
+<h1>{{if .Data.Brand}}Editar Marca{{else}}Nueva Marca{{end}}</h1>
+
+<form method="POST" action="{{if .Data.Brand}}/admin/brands/{{.Data.Brand.ID}}{{else}}/admin/brands{{end}}">
+    <label for="name">
+        Nombre de la Marca
+        <input type="text" id="name" name="name" value="{{if .Data.Brand}}{{.Data.Brand.Name}}{{end}}"
+            placeholder="Ej: Trek, Specialized, Giant..." required>
+    </label>
+
+    <label for="logo_url">
+        URL del Logo (opcional)
+        <input type="url" id="logo_url" name="logo_url" value="{{if .Data.Brand}}{{.Data.Brand.LogoURL}}{{end}}"
+            placeholder="https://ejemplo.com/logo.png">
+    </label>
+
+    <div class="grid">
+        <a href="/admin/brands" role="button" class="secondary outline">Cancelar</a>
+        <button type="submit">{{if .Data.Brand}}Guardar Cambios{{else}}Crear Marca{{end}}</button>
+    </div>
+</form>
+{{end}}

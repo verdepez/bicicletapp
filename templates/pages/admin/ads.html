@@ -1,0 +1,115 @@
+{{define "content"}}
+<h1>Gestión de Anuncios (Press Kit)</h1>
+
+<details>
+    <summary role="button" class="outline">➕ Nuevo Anuncio</summary>
+    <article>
+        <form method="POST" action="/admin/ads">
+            <div class="grid">
+                <div>
+                    <label for="title">Título Identificativo</label>
+                    <input type="text" name="title" placeholder="Ej: Promo Verano" required>
+                </div>
+                <div>
+                    <label for="media_type">Tipo de Medio</label>
+                    <select name="media_type">
+                        <option value="image" selected>Imagen</option>
+                        <option value="video">Video (MP4/WebM)</option>
+                    </select>
+                </div>
+            </div>
+
+            <label for="media_url">URL de la Imagen o Video</label>
+            <input type="url" name="media_url" placeholder="https://ejemplo.com/banner.jpg" required>
+            <small>Se recomienda usar imágenes de alta calidad (aprox 800x400px).</small>
+
+            <label for="link_url">Enlace de Destino (Opcional)</label>
+            <input type="url" name="link_url" placeholder="https://tutienda.com/oferta">
+            <small>A donde irá el usuario al hacer click.</small>
+
+            <label for="active">
+                <input type="checkbox" name="active" checked>
+                Activar inmediatamente tras crear
+            </label>
+
+            <button type="submit">Crear Anuncio</button>
+        </form>
+    </article>
+</details>
+
+<hr>
+
+<h2>Anuncios Existentes</h2>
+
+{{if .Data.Ads}}
+<div class="grid">
+    {{range .Data.Ads}}
+    <article class="ad-card">
+        <header>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong>{{.Title}}</strong>
+                <form method="POST" action="/admin/ads/{{.ID}}/update" style="margin:0;">
+                    <input type="hidden" name="action" value="toggle">
+                    <button type="submit" class="outline {{if .Active}}success{{else}}secondary{{end}}"
+                        style="padding: 4px 8px; font-size: 0.7rem; width: auto;">
+                        {{if .Active}}ACTIVO{{else}}INACTIVO{{end}}
+                    </button>
+                </form>
+            </div>
+        </header>
+        <div class="ad-preview"
+            style="background: #f0f0f0; text-align: center; border-radius: 8px; overflow: hidden; height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 1rem; position: relative;">
+            {{if eq .MediaType "image"}}
+            <img src="{{.MediaURL}}" alt="{{.Title}}" style="max-height: 100%; max-width: 100%; object-fit: contain;"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; color: #ef4444; padding: 1rem;">
+                <span style="font-size: 2rem;">⚠️</span><br>
+                <small>Error cargando imagen</small>
+            </div>
+            {{else if eq .MediaType "video"}}
+            <video src="{{.MediaURL}}" style="max-height: 100%; max-width: 100%;" muted loop autoplay playsinline
+                controls></video>
+            {{else}}
+            <div style="color: #ef4444;">Formato desconocido: {{.MediaType}}</div>
+            {{end}}
+
+            <div
+                style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.5); color: white; font-size: 0.6rem; padding: 2px;">
+                {{.MediaType}}: {{.MediaURL}}
+            </div>
+        </div>
+
+        <div class="ad-stats grid">
+            <div style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold;">{{.Impressions}}</div>
+                <small>Vistas</small>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">{{.Clicks}}</div>
+                <small>Clicks</small>
+            </div>
+        </div>
+
+        <footer style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+            <a href="{{.LinkURL}}" target="_blank" role="button" class="outline secondary"
+                style="padding: 6px 12px; font-size: 0.8rem;">🔗 Probar Link</a>
+            <form method="POST" action="/admin/ads/{{.ID}}/delete" style="margin: 0;"
+                onsubmit="return confirm('¿Eliminar este anuncio permanentemente?');">
+                <button type="submit" class="secondary outline"
+                    style="padding: 6px 12px; font-size: 0.8rem; border-color: #ef4444; color: #ef4444;">🗑️</button>
+            </form>
+        </footer>
+    </article>
+    {{end}}
+</div>
+{{else}}
+<p style="text-align: center; color: var(--muted-color);">No hay anuncios creados. ¡Crea el primero arriba!</p>
+{{end}}
+
+<style>
+    .ad-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{{end}}

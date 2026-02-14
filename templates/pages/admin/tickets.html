@@ -1,0 +1,92 @@
+{{define "content"}}
+<div class="grid" style="align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h1>🎫 Gestión de Tickets</h1>
+        <p>Administra las órdenes de trabajo y asignaciones.</p>
+    </div>
+    <div style="text-align: right;">
+        <a href="/admin/reports" role="button" class="secondary outline">📊 Ver Métricas</a>
+    </div>
+</div>
+
+<!-- Filters -->
+<nav style="margin-bottom: 2rem; overflow-x: auto; padding-bottom: 5px;">
+    <ul style="display: flex; gap: 0.5rem; padding: 0; margin: 0; list-style: none;">
+        <li><a href="/admin/tickets" role="button" style="white-space: nowrap;"
+                class='outline {{if eq .Data.CurrentStatus ""}}contrast{{else}}secondary{{end}}'>Todos</a></li>
+        <li><a href="/admin/tickets?status=received" role="button" style="white-space: nowrap;"
+                class='outline {{if eq .Data.CurrentStatus "received"}}contrast{{else}}secondary{{end}}'>📥
+                Recibidos</a></li>
+        <li><a href="/admin/tickets?status=diagnosing" role="button" style="white-space: nowrap;"
+                class='outline {{if eq .Data.CurrentStatus "diagnosing"}}contrast{{else}}secondary{{end}}'>🔍
+                Diagnosticando</a></li>
+        <li><a href="/admin/tickets?status=in_progress" role="button" style="white-space: nowrap;"
+                class='outline {{if eq .Data.CurrentStatus "in_progress"}}contrast{{else}}secondary{{end}}'>🔧 En
+                Progreso</a></li>
+        <li><a href="/admin/tickets?status=waiting_parts" role="button" style="white-space: nowrap;"
+                class='outline {{if eq .Data.CurrentStatus "waiting_parts"}}contrast{{else}}secondary{{end}}'>📦
+                Esperando Repuestos</a></li>
+        <li><a href="/admin/tickets?status=ready" role="button" style="white-space: nowrap;"
+                class='outline {{if eq .Data.CurrentStatus "ready"}}contrast{{else}}secondary{{end}}'>✅ Listos</a></li>
+        <li><a href="/admin/tickets?status=delivered" role="button" style="white-space: nowrap;"
+                class='outline {{if eq .Data.CurrentStatus "delivered"}}contrast{{else}}secondary{{end}}'>🚲
+                Entregados</a></li>
+    </ul>
+</nav>
+
+<figure>
+    <table role="grid">
+        <thead>
+            <tr>
+                <th scope="col"># Tracking</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Técnico Asignado</th>
+                <th scope="col">Fecha Actualización</th>
+                <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Data.Tickets}}
+            <tr>
+                <td><strong>{{.TrackingCode}}</strong></td>
+                <td>
+                    {{if .Booking}}
+                    {{if .Booking.Customer}}
+                    {{.Booking.Customer.Name}}<br>
+                    <small>{{.Booking.Customer.Email}}</small>
+                    {{else}}
+                    -
+                    {{end}}
+                    {{else}}
+                    -
+                    {{end}}
+                </td>
+                <td><span class="badge {{statusBadge .Status}}">{{ticketStatusLabel .Status}}</span></td>
+                <td>
+                    <form method="POST" action="/admin/tickets/{{.ID}}/technician" style="margin: 0;">
+                        <select name="technician_id" onchange="this.form.submit()"
+                            style="margin-bottom: 0; padding: 0.2rem; font-size: 0.9rem;">
+                            <option value="0">-- Sin Asignar --</option>
+                            {{$currentTechID := .TechnicianID}}
+                            {{range $.Data.Technicians}}
+                            <option value="{{.ID}}" {{if eq .ID $currentTechID}}selected{{end}}>{{.Name}}</option>
+                            {{end}}
+                        </select>
+                    </form>
+                </td>
+                <td><small>{{formatDate .UpdatedAt}}</small></td>
+                <td>
+                    <a href="/tickets/{{.ID}}" role="button" class="outline secondary"
+                        style="padding: 0.2rem 0.5rem; font-size: 0.9rem;">Ver Detalle</a>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="6" style="text-align: center;">No hay tickets encontrados</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</figure>
+{{end}}

@@ -1,0 +1,38 @@
+{{define "content"}}
+<h1>Gestión de Usuarios</h1>
+
+<a href="/admin/users/new" role="button" class="primary">+ Nuevo Usuario</a>
+
+<table role="grid">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Registrado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Data.Users}}
+        <tr>
+            <td>{{.Name}}</td>
+            <td>{{.Email}}</td>
+            <td>
+                <span class="badge badge-{{.Role}}">
+                    {{if eq .Role "admin"}}👑 Admin{{else if eq .Role "technician"}}🔧 Técnico{{else}}👤 Cliente{{end}}
+                </span>
+            </td>
+            <td>{{formatDate .CreatedAt}}</td>
+            <td>
+                <a href="/admin/users/{{.ID}}">Editar</a>
+            </td>
+        </tr>
+        {{else}}
+        <tr>
+            <td colspan="5">No hay usuarios.</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}
