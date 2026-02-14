@@ -1,2 +1,2 @@
 # bicicletAPP
-app talle ciclista
+app taller ciclista
