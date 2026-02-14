@@ -60,26 +60,34 @@ type JWT struct {
 
 // Load reads configuration from the specified JSON file and overrides with environment variables
 func Load(configPath string) (*Config, error) {
-	// Validate and clean the path to prevent path traversal attacks
-	cleanPath := filepath.Clean(configPath)
-	if !filepath.IsLocal(cleanPath) && !filepath.IsAbs(cleanPath) {
-		return nil, fmt.Errorf("invalid config path: %s", configPath)
-	}
+	var cfg Config
 
-	// Read the config file
+	// Validate and clean the path
+	cleanPath := filepath.Clean(configPath)
+
+	// Try to read the config file
 	data, err := os.ReadFile(cleanPath)
-	if err != nil {
+	if err == nil {
+		// File exists, parse it
+		if err := json.Unmarshal(data, &cfg); err != nil {
+			return nil, fmt.Errorf("failed to parse config file: %w", err)
+		}
+	} else if !os.IsNotExist(err) {
+		// Error other than "not found"
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
-
-	// Parse JSON
-	var cfg Config
-	if err := json.Unmarshal(data, &cfg); err != nil {
-		return nil, fmt.Errorf("failed to parse config file: %w", err)
-	}
+	// If file doesn't exist, we continue with empty config and rely on Env Vars
 
 	// Override with environment variables
 	cfg.applyEnvOverrides()
+
+	// Set defaults if missing (e.g. for purely env-based config)
+	if cfg.Server.Port == 0 {
+		cfg.Server.Port = 8080 // Default port
+	}
+	if cfg.JWT.ExpirationHours == 0 {
+		cfg.JWT.ExpirationHours = 24
+	}
 
 	// Validate configuration
 	if err := cfg.validate(); err != nil {
